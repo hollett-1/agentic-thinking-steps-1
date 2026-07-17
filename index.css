@@ -1,0 +1,38 @@
+/* Custom Aurora Keyframe Animations */
+@keyframes aurora-swipe-in-out {
+  0%, 100% {
+    transform: translate3d(-40%, 0, 0) scaleX(0.8) scaleY(0.95);
+    opacity: 0.45;
+  }
+  25% {
+    transform: translate3d(0%, -10%, 0) scaleX(1.2) scaleY(1.15);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate3d(40%, 0, 0) scaleX(0.8) scaleY(0.95);
+    opacity: 0.45;
+  }
+  75% {
+    transform: translate3d(0%, 10%, 0) scaleX(1.2) scaleY(1.15);
+    opacity: 0.95;
+  }
+}
+
+@keyframes aurora-pulse-sweep {
+  0%, 100% {
+    transform: rotate(0deg) scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(15deg) scale(1.25);
+    opacity: 0.95;
+  }
+}
+
+.animate-aurora-swipe-in-out {
+  animation: aurora-swipe-in-out 4.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-aurora-pulse-sweep {
+  animation: aurora-pulse-sweep 5s ease-in-out infinite;
+}
