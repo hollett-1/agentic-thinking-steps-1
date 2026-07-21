@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppState } from '../../types';
-import { LOADER_PRESETS, LABS_DEFAULT_STATE, LABS_CAROUSEL_STATE, LABS_LIST_STATE, LABS_NEURAL_LIST_STATE, LABS_DETERMINATE_LIST_STATE, LABS_DETERMINATE_NEURAL_LIST_STATE, LABS_NEURAL_PIXEL_DRIFT_STATE, LABS_NEURAL_AURORA_PARTICLES_STATE } from '../../presets';
+import { LOADER_PRESETS, LABS_DEFAULT_STATE, LABS_CAROUSEL_STATE, LABS_LIST_STATE, LABS_NEURAL_LIST_STATE, LABS_DETERMINATE_LIST_STATE, LABS_DETERMINATE_NEURAL_LIST_STATE, LABS_NEURAL_PIXEL_DRIFT_STATE, LABS_NEURAL_AURORA_PARTICLES_STATE, LABS_NEURAL_GLOW_LAYER_STATE, LABS_NEURAL_MESH_SHEET_STATE, LABS_AURORA_NEURAL_WAVE_POOL_STATE } from '../../presets';
 import { M3CollapsibleCard, M3Select } from '../M3Components';
 import { BaseControlCardProps } from './types';
 
@@ -39,6 +39,20 @@ export const PresetsCard: React.FC<PresetsCardProps> = ({
             updateState(LABS_NEURAL_PIXEL_DRIFT_STATE);
         } else if (isLabMode && key === 'labs_neural_aurora_particles') {
             updateState(LABS_NEURAL_AURORA_PARTICLES_STATE);
+        } else if (isLabMode && key === 'labs_neural_glow_layer') {
+            updateState(LABS_NEURAL_GLOW_LAYER_STATE);
+        } else if (isLabMode && key === 'labs_neural_mesh_sheet') {
+            updateState(LABS_NEURAL_MESH_SHEET_STATE);
+        } else if (isLabMode && key === 'labs_aurora_neural_wave_pool') {
+            const standardTitles = ['Thinking...', 'Analyzing request...', 'Scanning files...', 'Generating response...', 'Synthesizing research...'];
+            const randomTitle = standardTitles[Math.floor(Math.random() * standardTitles.length)];
+            updateState({
+                ...LABS_AURORA_NEURAL_WAVE_POOL_STATE,
+                loader: {
+                    ...LABS_AURORA_NEURAL_WAVE_POOL_STATE.loader,
+                    statusText: randomTitle
+                }
+            });
         } else if (!isLabMode && LOADER_PRESETS[key]) {
             const presetConfig = LOADER_PRESETS[key].config;
             const newLoader = {
@@ -61,6 +75,9 @@ export const PresetsCard: React.FC<PresetsCardProps> = ({
               { label: '4. Determinate (Aurora)', value: 'labs_determinate_neural_list' },
               { label: '5. Indeterminate (Aurora + Pixel Drift)', value: 'labs_neural_pixel_drift' },
               { label: '6. Indeterminate (Neural)', value: 'labs_neural_aurora_particles' },
+              { label: '7. Indeterminate (Neural + Glow Layer)', value: 'labs_neural_glow_layer' },
+              { label: '8. Indeterminate (Neural Mesh Surface / Sheet)', value: 'labs_neural_mesh_sheet' },
+              { label: '9. Indeterminate (Aurora & Neural Wave Pool Swipe)', value: 'labs_aurora_neural_wave_pool' },
               { label: 'Custom configuration', value: 'custom' }
           ]
         : [

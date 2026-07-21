@@ -2,6 +2,7 @@ import React from 'react';
 import { LoaderConfig, ProductIconType, ThemeMode, DetailItem } from '../types';
 import ParticleText from './ParticleText';
 import { AuroraParticleMesh } from './AuroraParticleMesh';
+import { NeuralSheetMesh } from './NeuralSheetMesh';
 
 interface LoaderProps {
   config: LoaderConfig;
@@ -398,23 +399,37 @@ const AuroraGlowBehavior: React.FC<{
   glowRadius: number;
   glowBlur: number;
   glowOpacity: number;
-}> = ({ glowPos, auroraBg, glowRadius, glowBlur, glowOpacity }) => {
-  const featheredMaskStyle = {
-    WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 25%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0) 85%)",
-    maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 25%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0) 85%)",
-  };
+  waveOffset?: number;
+}> = ({ glowPos, auroraBg, glowRadius, glowBlur, glowOpacity, waveOffset }) => {
+  const shiftX = waveOffset !== undefined ? ((waveOffset - 50) / 50) * 190 : 0;
+  const transformStyle = shiftX !== 0 ? { transform: `translateX(${shiftX}px)` } : {};
+
+  let edgeOpacity = 1;
+  if (waveOffset !== undefined) {
+    if (waveOffset < 18) {
+      const norm = Math.max(0, waveOffset / 18);
+      edgeOpacity = 0.5 - 0.5 * Math.cos(norm * Math.PI);
+    } else if (waveOffset > 82) {
+      const norm = Math.max(0, (100 - waveOffset) / 18);
+      edgeOpacity = 0.5 - 0.5 * Math.cos(norm * Math.PI);
+    }
+  }
+  const finalOpacity = glowOpacity * edgeOpacity;
 
   if (glowPos === 'swipe_in_out') {
     return (
-      <div className="absolute inset-0 overflow-visible pointer-events-none flex items-center justify-center" style={featheredMaskStyle}>
+      <div 
+        className="absolute inset-0 overflow-visible pointer-events-none flex items-center justify-center transition-all duration-75 ease-out" 
+        style={transformStyle}
+      >
         <div 
-          className="rounded-full animate-aurora-swipe-in-out transition-all duration-200"
+          className="rounded-full transition-all duration-75 ease-out"
           style={{
-            width: `calc(110% + ${glowRadius * 3}px)`,
-            height: `calc(125% + ${glowRadius * 2.5}px)`,
+            width: `calc(26% + ${glowRadius * 1.2}px)`,
+            height: `calc(44% + ${glowRadius * 1.0}px)`,
             backgroundImage: auroraBg,
             filter: `blur(${glowBlur}px)`,
-            opacity: glowOpacity,
+            opacity: finalOpacity,
           }}
         />
       </div>
@@ -423,15 +438,18 @@ const AuroraGlowBehavior: React.FC<{
 
   if (glowPos === 'pulse_sweep') {
     return (
-      <div className="absolute inset-0 overflow-visible pointer-events-none flex items-center justify-center" style={featheredMaskStyle}>
+      <div 
+        className="absolute inset-0 overflow-visible pointer-events-none flex items-center justify-center transition-all duration-75 ease-out" 
+        style={transformStyle}
+      >
         <div 
-          className="rounded-[40px] animate-aurora-pulse-sweep transition-all duration-200"
+          className="rounded-[40px] transition-all duration-75 ease-out"
           style={{
-            width: `calc(115% + ${glowRadius * 3.5}px)`,
-            height: `calc(130% + ${glowRadius * 3}px)`,
+            width: `calc(135% + ${glowRadius * 4}px)`,
+            height: `calc(145% + ${glowRadius * 3.5}px)`,
             backgroundImage: auroraBg,
             filter: `blur(${glowBlur}px)`,
-            opacity: glowOpacity,
+            opacity: finalOpacity,
           }}
         />
       </div>
@@ -439,13 +457,13 @@ const AuroraGlowBehavior: React.FC<{
   }
 
   if (glowPos === 'orbit_clockwise') {
-    const orbSize = `calc(45% + ${glowRadius * 2}px)`;
+    const orbSize = `calc(50% + ${glowRadius * 2.5}px)`;
     return (
       <div 
         className="absolute inset-0 overflow-visible pointer-events-none transition-all duration-200"
         style={{
           margin: `-${glowRadius * 0.75}px`,
-          ...featheredMaskStyle
+          ...transformStyle
         }}
       >
         <div className="absolute inset-[-25%] animate-[spin_6s_linear_infinite] flex items-start justify-start pointer-events-none">
@@ -456,7 +474,7 @@ const AuroraGlowBehavior: React.FC<{
               height: orbSize,
               backgroundImage: auroraBg,
               filter: `blur(${glowBlur}px)`,
-              opacity: glowOpacity,
+              opacity: finalOpacity,
             }}
           />
         </div>
@@ -468,7 +486,7 @@ const AuroraGlowBehavior: React.FC<{
               height: orbSize,
               backgroundImage: auroraBg,
               filter: `blur(${glowBlur}px)`,
-              opacity: glowOpacity * 0.85,
+              opacity: finalOpacity * 0.85,
             }}
           />
         </div>
@@ -479,13 +497,13 @@ const AuroraGlowBehavior: React.FC<{
   /* Default Border Halo (Breathing) */
   return (
     <div 
-      className="absolute inset-0 rounded-full animate-pulse transition-all duration-200 pointer-events-none"
+      className="absolute inset-0 rounded-full animate-pulse transition-all duration-75 ease-out pointer-events-none"
       style={{
         backgroundImage: auroraBg,
         filter: `blur(${glowBlur}px)`,
-        opacity: glowOpacity,
-        margin: `-${glowRadius}px`,
-        ...featheredMaskStyle
+        opacity: finalOpacity,
+        margin: `-${glowRadius * 1.5}px`,
+        ...transformStyle
       }}
     />
   );
@@ -820,6 +838,50 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
 
   const isCarouselMode = config.isExpanded && (config.expandedStyle === 'carousel_stack' || config.carouselMode === true);
 
+  const glowPos = config.auroraGlowPosition;
+  const glowRadius = config.auroraGlowRadius ?? 20;
+  const glowBlur = config.auroraGlowBlur ?? 25;
+  const glowOpacity = config.auroraGlowOpacity ?? 0.85;
+  const glowPalette = config.auroraGlowColors ?? 'blue_aurora';
+
+  let auroraBg = 'radial-gradient(ellipse at center, #73a8f4 0%, #a4d9ff 50%, rgba(200, 226, 251, 0) 80%)';
+  if (glowPalette === 'violet_aurora') auroraBg = 'radial-gradient(ellipse at center, #a855f7 0%, #3b82f6 50%, rgba(6, 182, 212, 0) 80%)';
+  if (glowPalette === 'emerald_aurora') auroraBg = 'radial-gradient(ellipse at center, #10b981 0%, #34d399 50%, rgba(167, 243, 208, 0) 80%)';
+  if (isDark) {
+    if (glowPalette === 'blue_aurora') auroraBg = 'radial-gradient(ellipse at center, #3b82f6 0%, #1d4ed8 50%, rgba(96, 165, 250, 0) 80%)';
+    if (glowPalette === 'violet_aurora') auroraBg = 'radial-gradient(ellipse at center, #9333ea 0%, #2563eb 50%, rgba(8, 145, 178, 0) 80%)';
+    if (glowPalette === 'emerald_aurora') auroraBg = 'radial-gradient(ellipse at center, #059669 0%, #047857 50%, rgba(52, 211, 153, 0) 80%)';
+  }
+
+  const [wavePhase, setWavePhase] = React.useState(config.auroraWaveOffset ?? 50);
+
+  React.useEffect(() => {
+    if (!config.auroraWaveAutoPlay) {
+      setWavePhase(config.auroraWaveOffset ?? 50);
+      return;
+    }
+    let rafId: number;
+    let startTime = typeof performance !== 'undefined' ? performance.now() : 0;
+    const baseSpeed = config.auroraWaveSpeed ?? 1.5;
+
+    const animateWave = (now: number) => {
+      const elapsed = (now - startTime) * 0.001 * baseSpeed;
+      // Continuous left-to-right sweep: 0 -> 100
+      const currentOffset = (elapsed * 35) % 100;
+      setWavePhase(currentOffset);
+      rafId = requestAnimationFrame(animateWave);
+    };
+
+    rafId = requestAnimationFrame(animateWave);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [config.auroraWaveAutoPlay, config.auroraWaveOffset, config.auroraWaveSpeed]);
+
+  const showTopTitleAurora = Boolean(config.auroraGlowOnTopTitle || config.preset === 'labs_neural_glow_layer' || config.preset === 'labs_neural_mesh_sheet' || config.preset === 'labs_aurora_neural_wave_pool' || (glowPos && config.isExpanded === false));
+  const showTopTitleParticles = Boolean(config.auroraParticlesOnTopTitle || config.preset === 'labs_neural_glow_layer' || config.preset === 'labs_neural_mesh_sheet' || config.preset === 'labs_aurora_neural_wave_pool' || (config.auroraParticlesOnDetailLines && config.isExpanded === false));
+  const showTextGlow = Boolean(config.textGlowEnabled || config.preset === 'labs_neural_glow_layer' || config.preset === 'labs_neural_mesh_sheet' || config.preset === 'labs_aurora_neural_wave_pool' || (glowPos && config.isExpanded === false));
+
   return (
     <div className={`transition-all duration-300 w-full overflow-visible ${isCarouselMode ? 'max-w-[560px]' : 'max-w-[440px]'} ${
       hasContainment 
@@ -827,9 +889,47 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
         : `p-2 bg-transparent border-transparent ${isDark ? 'text-[#e3e2e6]' : 'text-[#1f1f1f]'}`
     }`}>
       {/* Top Bar / Header */}
-      <div className="flex items-center justify-between gap-3 min-h-[36px]">
+      <div className="relative flex items-center justify-between gap-3 min-h-[36px] overflow-visible">
+        {/* Layer 0: Aurora Glow & Neural Particles rendered around/behind Top Title */}
+        {showTopTitleAurora && (
+          <div className="absolute inset-x-[-36px] inset-y-[-24px] pointer-events-none overflow-visible z-0 flex items-center justify-center">
+            <AuroraGlowBehavior 
+              glowPos={glowPos || 'border_halo'}
+              auroraBg={auroraBg}
+              glowRadius={glowRadius}
+              glowBlur={glowBlur}
+              glowOpacity={glowOpacity}
+              waveOffset={wavePhase}
+            />
+          </div>
+        )}
+        {showTopTitleParticles && (
+          <div className="absolute inset-x-[-36px] inset-y-[-24px] pointer-events-none overflow-visible z-0">
+            {config.neuralMeshStyle === 'sheet_mesh' || config.preset === 'labs_neural_mesh_sheet' ? (
+              <NeuralSheetMesh 
+                isDark={isDark} 
+                density={config.auroraParticleDensity ?? 5} 
+                speed={config.sheetWaveSpeed ?? config.auroraParticleSpeed ?? 0.9} 
+                amplitude={config.sheetWaveAmplitude ?? 50}
+                wireframeOpacity={config.sheetWireframeOpacity ?? 0.0}
+                particleShape={config.particleShape}
+                waveOffset={wavePhase}
+              />
+            ) : (
+              <AuroraParticleMesh 
+                isDark={isDark} 
+                density={config.auroraParticleDensity} 
+                speed={config.auroraParticleSpeed} 
+                size={config.auroraParticleSize} 
+                particleShape={config.particleShape}
+                waveOffset={wavePhase}
+              />
+            )}
+          </div>
+        )}
+
         {/* Left Side: Spark + Streaming Text + Badges */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="relative z-10 flex items-center gap-3 min-w-0 flex-1">
           {/* Spark / Indicator Container */}
           {(!config.loaderIconType || config.loaderIconType === 'spark') && (
             <div className="relative flex-shrink-0 w-8 h-8 flex items-center justify-center">
@@ -860,7 +960,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
           )}
 
           {/* Streaming String Text / Pixel Drift Title */}
-          <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1 overflow-visible">
             {config.statusTextEffect === 'pixel_drift' ? (
               (() => {
                 const colorsMap: Record<string, string[]> = {
@@ -890,10 +990,16 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               })()
             ) : (
               <span 
-                className={`text-[16px] font-medium leading-[24px] truncate font-display ${
-                  isDark ? 'text-[#e3e2e6]' : 'text-[#1f1f1f]'
+                className={`relative z-10 text-[16px] font-medium leading-[24px] font-display overflow-visible ${showTextGlow ? 'whitespace-nowrap overflow-visible py-1 px-1 -my-1 -mx-1 inline-block' : 'truncate'} ${
+                  isDark ? 'text-[#ffffff]' : 'text-[#1f1f1f]'
                 }`}
-                style={titleStyle}
+                style={{
+                  ...titleStyle,
+                  ...(showTextGlow && isDark ? {
+                    textShadow: `0 0 ${config.textGlowBlur ?? 16}px rgba(255,255,255, ${config.textGlowOpacity ?? 0.9}), 0 0 ${(config.textGlowBlur ?? 16) * 1.8}px ${glowPalette === 'violet_aurora' ? 'rgba(236,72,153,0.75)' : glowPalette === 'emerald_aurora' ? 'rgba(52,211,153,0.75)' : 'rgba(96,165,250,0.75)'}`,
+                    mixBlendMode: (config.textBlendMode as any) || 'plus-lighter'
+                  } : {})
+                }}
               >
                 {config.statusText}
               </span>
@@ -1039,21 +1145,6 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               : [{ title: config.statusDetailTitle || "Processing...", body: config.statusDetailBody || "" }];
             
             const visibleItems = availableItems.slice(0, count).map((it, i) => it || { title: `Step ${i + 1}`, body: '' });
-
-            const glowPos = config.auroraGlowPosition;
-            const glowRadius = config.auroraGlowRadius ?? 14;
-            const glowBlur = config.auroraGlowBlur ?? 20;
-            const glowOpacity = config.auroraGlowOpacity ?? 0.85;
-            const glowPalette = config.auroraGlowColors ?? 'blue_aurora';
-
-            let auroraBg = 'linear-gradient(to right, #73a8f4, #a4d9ff, #c8e2fb)';
-            if (glowPalette === 'violet_aurora') auroraBg = 'linear-gradient(to right, #a855f7, #3b82f6, #06b6d4)';
-            if (glowPalette === 'emerald_aurora') auroraBg = 'linear-gradient(to right, #10b981, #34d399, #a7f3d0)';
-            if (isDark) {
-              if (glowPalette === 'blue_aurora') auroraBg = 'linear-gradient(to right, #1d4ed8, #3b82f6, #60a5fa)';
-              if (glowPalette === 'violet_aurora') auroraBg = 'linear-gradient(to right, #7e22ce, #2563eb, #0891b2)';
-              if (glowPalette === 'emerald_aurora') auroraBg = 'linear-gradient(to right, #047857, #059669, #34d399)';
-            }
 
             if (isCarousel) {
               return (

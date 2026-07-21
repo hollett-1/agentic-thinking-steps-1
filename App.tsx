@@ -21,6 +21,7 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [copied, setCopied] = useState(false);
   const [fps, setFps] = useState(60);
+  const [scale, setScale] = useState(100);
   const [replayKey, setReplayKey] = useState(0);
 
   const state = isLabMode ? labsState : regularState;
@@ -212,61 +213,105 @@ const App: React.FC = () => {
         </div>
 
         {/* Component Showcase Canvas wrapped in Presentation Frame */}
-        <div className="w-full h-full flex flex-col items-center justify-center overflow-y-auto subtle-scrollbar px-4 py-16">
-          {(() => {
-            const presentation = state.loader.presentation || 'freeform';
-            const loaderElement = (
-              <ErrorBoundary>
-                <Loader
-                  config={state.loader}
-                  mode={state.mode}
-                  replayKey={replayKey}
-                  onToggleExpand={() => {
-                    updateState({
-                      loader: {
-                        ...state.loader,
-                        isExpanded: !state.loader.isExpanded
-                      }
-                    });
-                  }}
-                />
-              </ErrorBoundary>
-            );
-
-            if (presentation === 'android') {
-              return (
-                <AndroidPresentationFrame mode={state.mode} config={state.loader}>
-                  {loaderElement}
-                </AndroidPresentationFrame>
+        <div className="w-full h-full flex flex-col items-center justify-center overflow-auto subtle-scrollbar px-4 py-16">
+          <div 
+            className="transition-transform duration-200 ease-out flex items-center justify-center origin-center"
+            style={{ transform: `scale(${scale / 100})` }}
+          >
+            {(() => {
+              const presentation = state.loader.presentation || 'freeform';
+              const loaderElement = (
+                <ErrorBoundary>
+                  <Loader
+                    config={state.loader}
+                    mode={state.mode}
+                    replayKey={replayKey}
+                    onToggleExpand={() => {
+                      updateState({
+                        loader: {
+                          ...state.loader,
+                          isExpanded: !state.loader.isExpanded
+                        }
+                      });
+                    }}
+                  />
+                </ErrorBoundary>
               );
-            }
 
-            if (presentation === 'web') {
+              if (presentation === 'android') {
+                return (
+                  <AndroidPresentationFrame mode={state.mode} config={state.loader}>
+                    {loaderElement}
+                  </AndroidPresentationFrame>
+                );
+              }
+
+              if (presentation === 'web') {
+                return (
+                  <WebPresentationFrame mode={state.mode} config={state.loader}>
+                    {loaderElement}
+                  </WebPresentationFrame>
+                );
+              }
+
               return (
-                <WebPresentationFrame mode={state.mode} config={state.loader}>
+                <FreeformPresentationFrame mode={state.mode} config={state.loader}>
                   {loaderElement}
-                </WebPresentationFrame>
+                </FreeformPresentationFrame>
               );
-            }
-
-            return (
-              <FreeformPresentationFrame mode={state.mode} config={state.loader}>
-                {loaderElement}
-              </FreeformPresentationFrame>
-            );
-          })()}
+            })()}
+          </div>
         </div>
 
+        {/* Bottom-Right Controls: Scale Stepper & FPS Indicator */}
+        <div className="absolute bottom-5 right-5 z-40 flex items-center gap-2 select-none">
+          {/* Scale Stepper */}
+          <div 
+            className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-[11px] font-mono font-medium backdrop-blur-sm shadow-sm transition-colors ${
+              isDark 
+                ? 'bg-[#2b2d31]/80 border-[#383a3f] text-[#c4c7c5]' 
+                : 'bg-white/80 border-[#e0e2e5] text-[#444746]'
+            }`}
+          >
+            <button
+              onClick={() => setScale(prev => Math.max(25, prev - 25))}
+              disabled={scale <= 25}
+              className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                isDark ? 'hover:bg-[#383a3f] active:bg-[#484a4f]' : 'hover:bg-[#f0f4f9] active:bg-[#e0e4e9]'
+              }`}
+              title="Decrease scale (25%)"
+            >
+              <span className="material-symbols-outlined text-[14px]">remove</span>
+            </button>
+            <button
+              onClick={() => setScale(100)}
+              className="px-1 hover:underline cursor-pointer min-w-[38px] text-center"
+              title="Reset scale to 100%"
+            >
+              {scale}%
+            </button>
+            <button
+              onClick={() => setScale(prev => Math.min(300, prev + 25))}
+              disabled={scale >= 300}
+              className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed ${
+                isDark ? 'hover:bg-[#383a3f] active:bg-[#484a4f]' : 'hover:bg-[#f0f4f9] active:bg-[#e0e4e9]'
+              }`}
+              title="Increase scale (25%)"
+            >
+              <span className="material-symbols-outlined text-[14px]">add</span>
+            </button>
+          </div>
 
-        {/* FPS Indicator (Bottom-Right) */}
-        <div 
-          className={`absolute bottom-5 right-5 z-40 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium border select-none pointer-events-none transition-colors backdrop-blur-sm ${
-            isDark 
-              ? 'bg-[#2b2d31]/80 border-[#383a3f] text-[#c4c7c5]' 
-              : 'bg-white/80 border-[#e0e2e5] text-[#444746]'
-          }`}
-        >
-          {fps} FPS
+          {/* FPS Indicator */}
+          <div 
+            className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-medium border transition-colors backdrop-blur-sm ${
+              isDark 
+                ? 'bg-[#2b2d31]/80 border-[#383a3f] text-[#c4c7c5]' 
+                : 'bg-white/80 border-[#e0e2e5] text-[#444746]'
+            }`}
+          >
+            {fps} FPS
+          </div>
         </div>
       </main>
     </div>

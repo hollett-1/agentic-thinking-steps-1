@@ -229,7 +229,7 @@ export const WebPresentationFrame: React.FC<PresentationFrameProps> = ({
 
         {/* Browser Page Viewport Area */}
         <div 
-          className={`min-h-[500px] flex flex-col items-center justify-center p-8 relative transition-colors ${
+          className={`min-h-[500px] flex flex-col items-center justify-center p-8 relative transition-colors overflow-visible ${
             isDark ? 'bg-[#131416]' : 'bg-[var(--surface)]'
           }`}
         >
@@ -243,7 +243,7 @@ export const WebPresentationFrame: React.FC<PresentationFrameProps> = ({
           </div>
 
           {/* Rendered Loader Component Inside Web Viewport */}
-          <div className="w-full flex justify-center z-10">
+          <div className="w-full flex justify-center z-10 overflow-visible">
             {children}
           </div>
         </div>
@@ -257,7 +257,7 @@ export const FreeformPresentationFrame: React.FC<PresentationFrameProps> = ({
   children,
 }) => {
   return (
-    <div className="w-full max-w-[540px] flex flex-col items-center gap-6">
+    <div className="w-full max-w-[540px] flex flex-col items-center gap-6 overflow-visible p-2">
       <div className="w-full flex justify-center">
         {children}
       </div>

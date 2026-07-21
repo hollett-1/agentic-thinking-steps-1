@@ -9,8 +9,21 @@ export interface AuroraParticleMeshProps {
   density?: number;
   speed?: number;
   size?: number;
+  particleShape?: 'circle' | 'gemini_spark';
+  waveOffset?: number;
   palette?: string[];
   style?: React.CSSProperties;
+}
+
+function drawGeminiSpark(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r);
+  ctx.quadraticCurveTo(cx, cy, cx + r, cy);
+  ctx.quadraticCurveTo(cx, cy, cx, cy + r);
+  ctx.quadraticCurveTo(cx, cy, cx - r, cy);
+  ctx.quadraticCurveTo(cx, cy, cx, cy - r);
+  ctx.closePath();
+  ctx.fill();
 }
 
 /**
@@ -23,6 +36,8 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
   density = 5,
   speed = 2.0,
   size = 1.0,
+  particleShape = 'circle',
+  waveOffset,
   palette,
   style
 }) => {
@@ -30,8 +45,8 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number | null>(null);
 
-  const propsRef = useRef({ isDark, isIcon, density, speed, size, palette });
-  propsRef.current = { isDark, isIcon, density, speed, size, palette };
+  const propsRef = useRef({ isDark, isIcon, density, speed, size, particleShape, waveOffset, palette });
+  propsRef.current = { isDark, isIcon, density, speed, size, particleShape, waveOffset, palette };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -83,6 +98,20 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
       const centerX = cssW * 0.5;
       const centerY = cssH * 0.5;
 
+      const waveShift = p.waveOffset !== undefined ? ((p.waveOffset - 50) / 50) * 190 : 0;
+      const activeCenterX = centerX + waveShift;
+
+      let edgeOpacity = 1;
+      if (p.waveOffset !== undefined) {
+        if (p.waveOffset < 18) {
+          const norm = Math.max(0, p.waveOffset / 18);
+          edgeOpacity = 0.5 - 0.5 * Math.cos(norm * Math.PI);
+        } else if (p.waveOffset > 82) {
+          const norm = Math.max(0, (100 - p.waveOffset) / 18);
+          edgeOpacity = 0.5 - 0.5 * Math.cos(norm * Math.PI);
+        }
+      }
+
       const defaultColors = p.isDark
         ? ["#ffffff", "#93c5fd", "#3b82f6", "#1d4ed8"]
         : ["#1f1f1f", "#0284c7", "#38bdf8", "#7dd3fc"];
@@ -90,28 +119,33 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
 
       for (let y = gridSpacing * 0.5; y < cssH; y += gridSpacing) {
         for (let x = gridSpacing * 0.5; x < cssW; x += gridSpacing) {
-          const dx = x - centerX;
+          const dx = x - activeCenterX;
           const dy = y - centerY;
           
-          // Independent elliptical falloff ensures 0 opacity before reaching top/bottom or left/right bounds
-          const normX = Math.abs(dx) / Math.max(1, centerX);
-          const normY = Math.abs(dy) / Math.max(1, centerY);
+          // Dynamic falloff: compact spotlight when waveOffset is defined (Preset 9), wide span matching aurora glow when undefined (Presets 6-8)
+          const isWavePool = p.waveOffset !== undefined;
+          const radiusX = isWavePool ? centerX * 0.35 : cssW * 0.7;
+          const radiusY = isWavePool ? centerY * 0.7 : cssH * 0.8;
+          const exp = p.isIcon ? 1.5 : (isWavePool ? 1.8 : 1.1);
+
+          const normX = Math.abs(dx) / Math.max(1, radiusX);
+          const normY = Math.abs(dy) / Math.max(1, radiusY);
           
-          const falloffX = Math.max(0, 1 - Math.pow(normX, p.isIcon ? 1.5 : 1.3));
-          const falloffY = Math.max(0, 1 - Math.pow(normY, p.isIcon ? 1.5 : 1.3));
+          const falloffX = Math.max(0, 1 - Math.pow(normX, exp));
+          const falloffY = Math.max(0, 1 - Math.pow(normY, exp));
           const falloff = falloffX * falloffY;
 
-          if (falloff <= 0.02) continue;
+          if (falloff <= 0.005) continue;
 
           const wave1 = Math.sin(x * 0.06 + t * 2.2) * Math.cos(y * 0.06 + t * 1.8);
           const wave2 = Math.sin((x + y) * 0.04 - t * 1.5);
           const combinedWave = (wave1 + wave2) * 0.5;
 
           const rMod = 0.4 + 0.6 * ((combinedWave + 1) * 0.5);
-          const dotR = baseRadius * rMod * Math.pow(falloff, 0.7);
-          if (dotR < 0.3) continue;
+          const dotR = baseRadius * rMod * Math.pow(falloff, isWavePool ? 0.7 : 0.4);
+          if (dotR < 0.15) continue;
 
-          const alpha = Math.min(1, Math.max(0, falloff * (0.35 + 0.65 * ((combinedWave + 1) * 0.5))));
+          const alpha = Math.min(1, Math.max(0, edgeOpacity * falloff * (0.35 + 0.65 * ((combinedWave + 1) * 0.5))));
           
           const energy = Math.min(1, Math.max(0, falloff * 0.7 + ((combinedWave + 1) * 0.5) * 0.3));
           let color = colors[0];
@@ -121,9 +155,14 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
 
           ctx.globalAlpha = alpha;
           ctx.fillStyle = color;
-          ctx.beginPath();
-          ctx.arc(x, y, dotR, 0, Math.PI * 2);
-          ctx.fill();
+
+          if (p.particleShape === 'gemini_spark') {
+            drawGeminiSpark(ctx, x, y, dotR * 1.5);
+          } else {
+            ctx.beginPath();
+            ctx.arc(x, y, dotR, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
 

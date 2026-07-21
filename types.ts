@@ -246,8 +246,21 @@ export interface LoaderConfig {
   mouseForce?: number;
   particleFontSize?: number;
   particleAnimateIn?: boolean;
-  particleAutoFit?: boolean;
+  auroraGlowOnTopTitle?: boolean;
+  auroraParticlesOnTopTitle?: boolean;
+  textGlowEnabled?: boolean;
+  textGlowBlur?: number;
+  textGlowOpacity?: number;
+  textBlendMode?: 'plus-lighter' | 'screen' | 'overlay' | 'normal';
   particleColorsPreset?: 'monochrome' | 'aurora' | 'cyber' | 'sunset' | 'emerald';
+  neuralMeshStyle?: 'particles' | 'sheet_mesh';
+  sheetWaveSpeed?: number;
+  sheetWaveAmplitude?: number;
+  sheetWireframeOpacity?: number;
+  particleShape?: 'circle' | 'gemini_spark';
+  auroraWaveOffset?: number;
+  auroraWaveAutoPlay?: boolean;
+  auroraWaveSpeed?: number;
 }
 
 export interface AppState {

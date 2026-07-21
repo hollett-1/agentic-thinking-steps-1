@@ -189,6 +189,54 @@ export const M3Slider: React.FC<{
     </div>
 );
 
+export const M3SliderWithPlay: React.FC<{ 
+    label: string; 
+    value: number; 
+    min: number; 
+    max: number; 
+    step?: number; 
+    isPlaying?: boolean;
+    onTogglePlay?: () => void;
+    onChange: (val: number) => void; 
+    disabled?: boolean;
+    valueLabel?: string;
+}> = ({ label, value, min, max, step = 1, isPlaying = false, onTogglePlay, onChange, disabled, valueLabel }) => (
+    <div className={`flex flex-col gap-2 transition-opacity duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+        <div className="flex justify-between items-center">
+             <span className="text-[13px] font-medium text-[var(--on-surface-variant)] font-sans">{label}</span>
+             <div className="flex items-center gap-2">
+                 {onTogglePlay && (
+                     <button
+                         type="button"
+                         onClick={onTogglePlay}
+                         className={`flex items-center justify-center w-6 h-6 rounded-full transition-all ${
+                             isPlaying 
+                                 ? 'bg-[var(--primary)] text-[var(--on-primary)] shadow-sm scale-105 ring-2 ring-[var(--primary)]/40' 
+                                 : 'bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]'
+                         }`}
+                         title={isPlaying ? "Pause Wave Pool Animation" : "Play Wave Pool Animation"}
+                     >
+                         <span className="material-symbols-outlined text-[14px]">
+                             {isPlaying ? 'pause' : 'play_arrow'}
+                         </span>
+                     </button>
+                 )}
+                 <span className="text-xs font-medium text-[var(--on-primary-container)] bg-[var(--primary-container)] px-2 py-0.5 rounded-[4px] font-sans min-w-[42px] text-center">
+                     {valueLabel !== undefined ? valueLabel : value?.toFixed(step < 1 ? 2 : 0)}
+                 </span>
+             </div>
+        </div>
+        <div className="h-[16px] flex items-center">
+            <input 
+                type="range" min={min} max={max} value={value} step={step}
+                onChange={(e) => onChange(Number(e.target.value))}
+                className="m3-range w-full"
+                disabled={disabled}
+            />
+        </div>
+    </div>
+);
+
 export const M3Select: React.FC<{ 
     label: string; 
     value: string; 

@@ -774,6 +774,196 @@ export const LABS_NEURAL_AURORA_PARTICLES_STATE: AppState = {
   gridSelection: "stepper_hybrid"
 };
 
+export const LABS_NEURAL_GLOW_LAYER_STATE: AppState = {
+  mode: "dark",
+  preset: "labs_neural_glow_layer",
+  gridGranularity: "3x3",
+  loader: {
+    hasContainment: false,
+    loaderIconType: "dots",
+    sparkState: "in_progress",
+    loaderVariant: "default",
+    statusText: "Synthesizing research...",
+    isExpanded: false,
+    expandedStyle: "title_list_neural",
+    auroraParticlesOnTopTitle: true,
+    auroraGlowOnTopTitle: true,
+    textGlowEnabled: true,
+    textGlowBlur: 16,
+    textGlowOpacity: 0.9,
+    textBlendMode: "plus-lighter",
+    auroraParticlesOnDetailLines: false,
+    auroraParticlesOnIcon: true,
+    auroraParticleDensity: 5,
+    auroraParticleSpeed: 2.0,
+    auroraParticleSize: 1.0,
+    auroraGlowPosition: "border_halo",
+    auroraGlowColors: "blue_aurora",
+    auroraGlowRadius: 14,
+    auroraGlowBlur: 38,
+    auroraGlowOpacity: 0.65,
+    statusDetailTitle: "Exploring user feedback trends",
+    statusDetailBody: "",
+    detailItemCount: 4,
+    detailItems: [
+      {
+        title: "Analyzing recent chats and emails",
+        body: ""
+      },
+      {
+        title: "Exploring user feedback trends",
+        body: ""
+      },
+      {
+        title: "Reviewing competitor strategies",
+        body: ""
+      },
+      {
+        title: "Synthesizing team meeting notes",
+        body: ""
+      }
+    ],
+    showBadges: false,
+    animateBadges: true,
+    badgeCount: "4+",
+    selectedProductIcons: [
+      "gmail",
+      "docs",
+      "sheets",
+      "drive",
+      "chat",
+      "calendar"
+    ],
+    presentation: "freeform",
+    webUrl: "mail.google.com/mail/u/0/#inbox",
+    androidPosition: "bottom",
+    showStepper: false,
+    stepperStyle: "symbols",
+    showStepperLines: false,
+    ruleVariant: "none",
+    titleWidth: 95,
+    titleWeight: 400
+  },
+  gridSelection: "stepper_hybrid"
+};
+
+export const LABS_NEURAL_MESH_SHEET_STATE: AppState = {
+  mode: "dark",
+  preset: "labs_neural_mesh_sheet",
+  gridGranularity: "3x3",
+  loader: {
+    hasContainment: false,
+    loaderIconType: "dots",
+    sparkState: "in_progress",
+    loaderVariant: "default",
+    statusText: "Mapping neural surface dynamics...",
+    isExpanded: false,
+    expandedStyle: "title_list_neural",
+    neuralMeshStyle: "sheet_mesh",
+    sheetWaveSpeed: 0.9,
+    sheetWaveAmplitude: 50,
+    sheetWireframeOpacity: 0.0,
+    particleShape: "circle",
+    auroraParticlesOnTopTitle: true,
+    auroraGlowOnTopTitle: true,
+    textGlowEnabled: true,
+    textGlowBlur: 16,
+    textGlowOpacity: 0.9,
+    textBlendMode: "plus-lighter",
+    auroraParticlesOnDetailLines: true,
+    auroraParticlesOnIcon: true,
+    auroraParticleDensity: 5,
+    auroraParticleSpeed: 0.9,
+    auroraParticleSize: 1.0,
+    auroraGlowPosition: "border_halo",
+    auroraGlowColors: "blue_aurora",
+    auroraGlowRadius: 16,
+    auroraGlowBlur: 38,
+    auroraGlowOpacity: 0.65,
+    statusDetailTitle: "Calculating 3D surface vectors",
+    statusDetailBody: "",
+    detailItemCount: 4,
+    detailItems: [
+      { title: "Initializing depth mesh grid", body: "" },
+      { title: "Calculating 3D surface vectors", body: "" },
+      { title: "Simulating fluid sheet dynamics", body: "" },
+      { title: "Rendering neural surface nodes", body: "" }
+    ],
+    showBadges: false,
+    animateBadges: true,
+    badgeCount: "4+",
+    selectedProductIcons: ["gmail", "docs", "sheets", "drive", "chat", "calendar"],
+    presentation: "freeform",
+    webUrl: "mail.google.com/mail/u/0/#inbox",
+    androidPosition: "bottom",
+    showStepper: false,
+    stepperStyle: "symbols",
+    showStepperLines: false,
+    ruleVariant: "none",
+    titleWidth: 95,
+    titleWeight: 400
+  },
+  gridSelection: "stepper_hybrid"
+};
+
+export const LABS_AURORA_NEURAL_WAVE_POOL_STATE: AppState = {
+  mode: "dark",
+  preset: "labs_aurora_neural_wave_pool",
+  gridGranularity: "3x3",
+  loader: {
+    hasContainment: false,
+    loaderIconType: "dots",
+    sparkState: "in_progress",
+    loaderVariant: "default",
+    statusText: "Thinking...",
+    isExpanded: false,
+    expandedStyle: "title_list_neural",
+    neuralMeshStyle: "particles",
+    auroraGlowPosition: "swipe_in_out",
+    auroraGlowColors: "blue_aurora",
+    auroraWaveOffset: 50,
+    auroraWaveAutoPlay: true,
+    auroraWaveSpeed: 1.5,
+    auroraParticlesOnTopTitle: true,
+    auroraGlowOnTopTitle: true,
+    textGlowEnabled: true,
+    textGlowBlur: 18,
+    textGlowOpacity: 0.9,
+    textBlendMode: "plus-lighter",
+    auroraParticlesOnDetailLines: true,
+    auroraParticlesOnIcon: true,
+    auroraParticleDensity: 12,
+    auroraParticleSpeed: 1.8,
+    auroraParticleSize: 1.2,
+    auroraGlowRadius: 24,
+    auroraGlowBlur: 35,
+    auroraGlowOpacity: 0.8,
+    statusDetailTitle: "Simulating atmospheric wave swipe",
+    statusDetailBody: "",
+    detailItemCount: 4,
+    detailItems: [
+      { title: "Initializing left-to-right wave swipe", body: "" },
+      { title: "Simulating atmospheric wave swipe", body: "" },
+      { title: "Coupling neural particles with glow offset", body: "" },
+      { title: "Synthesizing wave pool dynamics", body: "" }
+    ],
+    showBadges: false,
+    animateBadges: true,
+    badgeCount: "4+",
+    selectedProductIcons: ["gmail", "docs", "sheets", "drive", "chat", "calendar"],
+    presentation: "freeform",
+    webUrl: "mail.google.com/mail/u/0/#inbox",
+    androidPosition: "bottom",
+    showStepper: false,
+    stepperStyle: "symbols",
+    showStepperLines: false,
+    ruleVariant: "none",
+    titleWidth: 95,
+    titleWeight: 400
+  },
+  gridSelection: "stepper_hybrid"
+};
+
 
 
 

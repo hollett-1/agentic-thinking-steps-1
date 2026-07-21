@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppState } from '../../types';
-import { M3CollapsibleCard, M3Switch, M3SegmentedButton, M3Slider } from '../M3Components';
+import { M3CollapsibleCard, M3Switch, M3SegmentedButton, M3Slider, M3Select } from '../M3Components';
 import { BaseControlCardProps } from './types';
 
 export interface DesignTypographyCardProps extends BaseControlCardProps {}
@@ -27,6 +27,15 @@ export const DesignTypographyCard: React.FC<DesignTypographyCardProps> = ({
             }
         });
     };
+
+    const blendModeOptions = [
+        { label: 'Plus Lighter (Additive)', value: 'plus-lighter' },
+        { label: 'Screen (Luminous)', value: 'screen' },
+        { label: 'Overlay (Vibrant)', value: 'overlay' },
+        { label: 'Normal (Standard)', value: 'normal' }
+    ];
+
+    const isGlowActive = loader.textGlowEnabled ?? (state.preset === 'labs_neural_glow_layer');
 
     return (
         <M3CollapsibleCard 
@@ -123,6 +132,48 @@ export const DesignTypographyCard: React.FC<DesignTypographyCardProps> = ({
                                 onChange={(val) => updateLoader({ titleWidth: val })}
                             />
                         </div>
+                    </div>
+
+                    {/* Title Glow & Blend Intensity Section */}
+                    <div className="flex flex-col gap-3 pt-2 border-t border-[var(--outline-variant)]/40">
+                        <span className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider">Title Glow & Blend Intensity</span>
+                        
+                        <M3Switch
+                            label="Enable Title Text Glow"
+                            checked={isGlowActive}
+                            onChange={(checked) => updateLoader({ textGlowEnabled: checked })}
+                        />
+
+                        {isGlowActive && (
+                            <>
+                                <M3Select
+                                    label="Text Blend Mode"
+                                    value={loader.textBlendMode ?? 'plus-lighter'}
+                                    onChange={(val) => updateLoader({ textBlendMode: val as any })}
+                                    options={blendModeOptions}
+                                />
+
+                                <M3Slider
+                                    label="Title Glow Blur / Spread"
+                                    min={0}
+                                    max={40}
+                                    step={1}
+                                    value={loader.textGlowBlur ?? 16}
+                                    valueLabel={`${loader.textGlowBlur ?? 16}px`}
+                                    onChange={(val) => updateLoader({ textGlowBlur: val })}
+                                />
+
+                                <M3Slider
+                                    label="Title Glow Intensity / Opacity"
+                                    min={0}
+                                    max={1}
+                                    step={0.05}
+                                    value={loader.textGlowOpacity ?? 0.9}
+                                    valueLabel={`${Math.round((loader.textGlowOpacity ?? 0.9) * 100)}%`}
+                                    onChange={(val) => updateLoader({ textGlowOpacity: val })}
+                                />
+                            </>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-1 pt-2">
