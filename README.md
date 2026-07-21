@@ -1,12 +1,16 @@
-<div align="center">
-  <img width="1200" height="475" alt="Agentic Thinking Steps Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # Agentic Thinking Steps & AI Components
 
-An interactive, high-performance visualizer and component library for **Agentic AI Thinking Steps**, AI loader animations, Material Design 3 UI patterns, and generative particle effects.
+An interactive, high-performance visualizer and component sandbox for **Agentic AI Thinking Steps**, AI loader animations, Material Design 3 UI patterns, and generative particle effects.
 
 Built with React 19, Vite, TypeScript, Canvas API, and Material Color Utilities.
+
+---
+
+## ℹ️ About
+
+**Agentic Thinking Steps & AI Components** is a modern component workspace designed for prototyping, customizing, and previewing real-time AI reasoning workflows and agentic thinking indicators. 
+
+Whether you are developing complex multi-agent reasoning chains, LLM step-by-step progress visualizers, or custom Material 3 loading states, this project provides a comprehensive suite of interactive controls, dynamic color themes, generative particle meshes, and device presentation wrappers (Android, Web, and Freeform Canvas).
 
 ---
 
