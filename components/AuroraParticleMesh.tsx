@@ -122,11 +122,10 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
           const dx = x - activeCenterX;
           const dy = y - centerY;
           
-          // Dynamic falloff: compact spotlight when waveOffset is defined (Preset 9), wide span matching aurora glow when undefined (Presets 6-8)
-          const isWavePool = p.waveOffset !== undefined;
-          const radiusX = isWavePool ? centerX * 0.35 : cssW * 0.7;
-          const radiusY = isWavePool ? centerY * 0.7 : cssH * 0.8;
-          const exp = p.isIcon ? 1.5 : (isWavePool ? 1.8 : 1.1);
+          // Dynamic falloff: wide span fading seamlessly before container edges
+          const radiusX = cssW * 0.45;
+          const radiusY = cssH * 0.45;
+          const exp = p.isIcon ? 1.5 : 1.4;
 
           const normX = Math.abs(dx) / Math.max(1, radiusX);
           const normY = Math.abs(dy) / Math.max(1, radiusY);
@@ -142,7 +141,7 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
           const combinedWave = (wave1 + wave2) * 0.5;
 
           const rMod = 0.4 + 0.6 * ((combinedWave + 1) * 0.5);
-          const dotR = baseRadius * rMod * Math.pow(falloff, isWavePool ? 0.7 : 0.4);
+          const dotR = baseRadius * rMod * Math.pow(falloff, 0.4);
           if (dotR < 0.15) continue;
 
           const alpha = Math.min(1, Math.max(0, edgeOpacity * falloff * (0.35 + 0.65 * ((combinedWave + 1) * 0.5))));
@@ -187,8 +186,8 @@ export const AuroraParticleMesh: React.FC<AuroraParticleMeshProps> = ({
         height: "calc(100% + 96px)",
         overflow: "hidden",
         pointerEvents: "none",
-        WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 25%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0) 85%)",
-        maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 25%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0) 85%)",
+        WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 90%)",
+        maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 90%)",
         ...style
       }}
     >

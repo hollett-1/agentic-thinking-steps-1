@@ -590,6 +590,13 @@ const AuroraYAxisCarousel: React.FC<{
   const glowPalette = config?.auroraGlowColors ?? 'blue_aurora';
   const activeCardOpacity = config?.auroraActiveCardOpacity ?? 1.0;
 
+  const showAuroraOnExplanation = config?.auroraOnExplanationItems !== undefined 
+    ? Boolean(config.auroraOnExplanationItems) 
+    : Boolean(config?.expandedStyle === 'title_list_aurora' || config?.expandedStyle === 'title_list_determinate_aurora');
+  const showNeuralOnExplanation = config?.neuralOnExplanationItems !== undefined 
+    ? Boolean(config.neuralOnExplanationItems) 
+    : Boolean(config?.auroraParticlesOnDetailLines || config?.expandedStyle === 'title_list_neural' || config?.expandedStyle === 'title_list_determinate_neural' || config?.expandedStyle === 'title_list_neural_particles' || config?.expandedStyle === 'title_list_determinate_neural_particles' || config?.preset === 'labs_neural_aurora_particles');
+
   let gradientColors = '#73a8f4, #a4d9ff, #c8e2fb';
   if (glowPalette === 'violet_aurora') gradientColors = '#a855f7, #3b82f6, #06b6d4';
   if (glowPalette === 'emerald_aurora') gradientColors = '#10b981, #34d399, #a7f3d0';
@@ -664,20 +671,22 @@ const AuroraYAxisCarousel: React.FC<{
                   />
 
                   {/* Layer 1: Aurora Effect rendered ON TOP (z-10) of the active card's container background */}
-                  <AuroraGlowBehavior 
-                    glowPos={glowPos}
-                    auroraBg={`linear-gradient(to right, ${gradientColors})`}
-                    glowRadius={glowRadius}
-                    glowBlur={glowBlur}
-                    glowOpacity={glowOpacity}
-                  />
+                  {showAuroraOnExplanation && (
+                    <AuroraGlowBehavior 
+                      glowPos={glowPos}
+                      auroraBg={`linear-gradient(to right, ${gradientColors})`}
+                      glowRadius={glowRadius}
+                      glowBlur={glowBlur}
+                      glowOpacity={glowOpacity}
+                    />
+                  )}
 
-                  {(config.auroraParticlesOnDetailLines || config.expandedStyle === 'title_list_neural' || config.expandedStyle === 'title_list_determinate_neural' || config.expandedStyle === 'title_list_neural_particles' || config.expandedStyle === 'title_list_determinate_neural_particles' || config.preset === 'labs_neural_aurora_particles') && (
+                  {showNeuralOnExplanation && (
                     <AuroraParticleMesh 
                       isDark={isDark} 
-                      density={config.auroraParticleDensity} 
-                      speed={config.auroraParticleSpeed} 
-                      size={config.auroraParticleSize} 
+                      density={config?.auroraParticleDensity} 
+                      speed={config?.auroraParticleSpeed} 
+                      size={config?.auroraParticleSize} 
                     />
                   )}
 
@@ -731,7 +740,6 @@ const AuroraYAxisCarousel: React.FC<{
 export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggleExpand }) => {
   const isDark = mode === 'dark';
   const isInProgress = config.sparkState === 'in_progress';
-  const showBadges = config.loaderVariant === 'with_badges' || (config.showBadges && config.loaderVariant !== 'default');
 
   // Determine how many badges to display based on badgeCount setting
   let maxVisible = 3;
@@ -878,18 +886,67 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
     };
   }, [config.auroraWaveAutoPlay, config.auroraWaveOffset, config.auroraWaveSpeed]);
 
-  const showTopTitleAurora = Boolean(config.auroraGlowOnTopTitle || config.preset === 'labs_neural_glow_layer' || config.preset === 'labs_neural_mesh_sheet' || config.preset === 'labs_aurora_neural_wave_pool' || (glowPos && config.isExpanded === false));
-  const showTopTitleParticles = Boolean(config.auroraParticlesOnTopTitle || config.preset === 'labs_neural_glow_layer' || config.preset === 'labs_neural_mesh_sheet' || config.preset === 'labs_aurora_neural_wave_pool' || (config.auroraParticlesOnDetailLines && config.isExpanded === false));
+  const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
+
+  React.useEffect(() => {
+    if (replayKey !== undefined && replayKey > 0) {
+      setElapsedSeconds(0);
+    }
+  }, [replayKey]);
+
+  React.useEffect(() => {
+    if (!isInProgress || !config.showTimer) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setElapsedSeconds(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isInProgress, config.showTimer]);
+
+  const formatTimer = (totalSec: number) => {
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  const showLeadingLoader = config.showLeadingLoader !== false;
+  const showTitle = config.showTitle !== false;
+  const showBadges = (config.loaderVariant === 'with_badges' || (config.showBadges && config.loaderVariant !== 'default')) && config.showBadges !== false;
+  const showTimer = config.showTimer === true;
+  const showStopIcon = config.showStopIcon === true;
+  const showChevron = config.showChevron !== false;
+
+  const showAuroraOnLeading = Boolean(config.auroraOnLeadingLoader);
+  const showAuroraOnTitle = config.auroraOnTitleRow !== undefined 
+    ? Boolean(config.auroraOnTitleRow) 
+    : Boolean(config.auroraGlowOnTopTitle ?? (glowPos && config.isExpanded === false));
+  const showAuroraOnExplanation = config.auroraOnExplanationItems !== undefined 
+    ? Boolean(config.auroraOnExplanationItems) 
+    : Boolean(config.expandedStyle === 'title_list_aurora' || config.expandedStyle === 'title_list_determinate_aurora');
+
+  const showNeuralOnLeading = config.neuralOnLeadingLoader !== undefined 
+    ? Boolean(config.neuralOnLeadingLoader) 
+    : Boolean(config.auroraParticlesOnIcon && !config.auroraParticlesOnTopTitle && !config.auroraParticlesOnDetailLines);
+  const showNeuralOnTitle = config.neuralOnTitleRow !== undefined 
+    ? Boolean(config.neuralOnTitleRow) 
+    : Boolean(config.auroraParticlesOnTopTitle);
+  const showNeuralOnExplanation = config.neuralOnExplanationItems !== undefined 
+    ? Boolean(config.neuralOnExplanationItems) 
+    : Boolean(config.auroraParticlesOnDetailLines);
+
+  const showTopTitleAurora = showAuroraOnTitle;
+  const showTopTitleParticles = showNeuralOnTitle;
   const showTextGlow = Boolean(config.textGlowEnabled || config.preset === 'labs_neural_glow_layer' || config.preset === 'labs_neural_mesh_sheet' || config.preset === 'labs_aurora_neural_wave_pool' || (glowPos && config.isExpanded === false));
 
   return (
-    <div className={`transition-all duration-300 w-full overflow-visible ${isCarouselMode ? 'max-w-[560px]' : 'max-w-[440px]'} ${
+    <div className={`transition-all duration-300 w-full overflow-visible ${isCarouselMode ? 'w-[560px] min-w-[320px] sm:min-w-[560px]' : 'w-[440px] min-w-[320px] sm:min-w-[440px]'} ${
       hasContainment 
         ? `rounded-[24px] p-4 border shadow-sm ${isDark ? 'bg-[#1e1f22] border-[#2b2d31] text-[#e3e2e6]' : 'bg-white border-[#e0e2e5] text-[#1f1f1f]'}`
         : `p-2 bg-transparent border-transparent ${isDark ? 'text-[#e3e2e6]' : 'text-[#1f1f1f]'}`
     }`}>
       {/* Top Bar / Header */}
-      <div className="relative flex items-center justify-between gap-3 min-h-[36px] overflow-visible">
+      <div className="relative flex items-center justify-between gap-3 min-h-[36px] w-full overflow-visible">
         {/* Layer 0: Aurora Glow & Neural Particles rendered around/behind Top Title */}
         {showTopTitleAurora && (
           <div className="absolute inset-x-[-36px] inset-y-[-24px] pointer-events-none overflow-visible z-0 flex items-center justify-center">
@@ -931,83 +988,113 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
         {/* Left Side: Spark + Streaming Text + Badges */}
         <div className="relative z-10 flex items-center gap-3 min-w-0 flex-1">
           {/* Spark / Indicator Container */}
-          {(!config.loaderIconType || config.loaderIconType === 'spark') && (
-            <div className="relative flex-shrink-0 w-8 h-8 flex items-center justify-center">
-              {/* Animated Rotating Progress Ring when in_progress */}
-              {isInProgress && (
-                <div 
-                  className="absolute inset-0 rounded-full animate-spin pointer-events-none" 
-                  style={{
-                    background: 'conic-gradient(from 0deg, #346bf1 0%, #3186ff 40%, #a9a8ff 70%, transparent 95%)',
-                    maskImage: 'radial-gradient(circle at center, transparent 58%, black 63%)',
-                    WebkitMaskImage: 'radial-gradient(circle at center, transparent 58%, black 63%)',
-                    animationDuration: '1.2s'
-                  }} 
-                />
+          {showLeadingLoader && (
+            <div className="relative flex-shrink-0 min-w-[26px] h-8 flex items-center justify-center scale-[0.8] origin-center">
+              {/* Aurora Glow on Leading Loader */}
+              {showAuroraOnLeading && (
+                <div className="absolute inset-[-8px] rounded-full pointer-events-none overflow-visible z-0">
+                  <AuroraGlowBehavior
+                    glowPos="border_halo"
+                    auroraBg={auroraBg}
+                    glowRadius={10}
+                    glowBlur={12}
+                    glowOpacity={0.8}
+                  />
+                </div>
               )}
-              <SparkIcon />
-            </div>
-          )}
+              {/* Neural Particles on Leading Loader */}
+              {showNeuralOnLeading && (
+                <div className="absolute inset-[-12px] pointer-events-none overflow-visible z-0">
+                  <AuroraParticleMesh
+                    isDark={isDark}
+                    density={config.auroraParticleDensity ?? 4}
+                    speed={config.auroraParticleSpeed ?? 1}
+                    size={config.auroraParticleSize ?? 1}
+                  />
+                </div>
+              )}
 
-          {(config.loaderIconType === 'dots' || config.loaderIconType === 'glowing_dots') && (
-            <div className="relative flex-shrink-0 flex items-center justify-center min-w-[28px] h-8 px-1">
-              <div className="flex items-center gap-[4px]">
-                <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0s' }} />
-                <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0.15s' }} />
-                <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0.3s' }} />
-              </div>
+              {(!config.loaderIconType || config.loaderIconType === 'spark') && (
+                <div className="relative flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                  {/* Animated Rotating Progress Ring when in_progress */}
+                  {isInProgress && (
+                    <div 
+                      className="absolute inset-0 rounded-full animate-spin pointer-events-none" 
+                      style={{
+                        background: 'conic-gradient(from 0deg, #346bf1 0%, #3186ff 40%, #a9a8ff 70%, transparent 95%)',
+                        maskImage: 'radial-gradient(circle at center, transparent 58%, black 63%)',
+                        WebkitMaskImage: 'radial-gradient(circle at center, transparent 58%, black 63%)',
+                        animationDuration: '1.2s'
+                      }} 
+                    />
+                  )}
+                  <SparkIcon />
+                </div>
+              )}
+
+              {(config.loaderIconType === 'dots' || config.loaderIconType === 'glowing_dots') && (
+                <div className="relative flex-shrink-0 flex items-center justify-center min-w-[28px] h-8 px-1">
+                  <div className="flex items-center gap-[4px]">
+                    <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0s' }} />
+                    <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0.15s' }} />
+                    <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0.3s' }} />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Streaming String Text / Pixel Drift Title */}
           <div className="flex items-center gap-2 min-w-0 flex-1 overflow-visible">
-            {config.statusTextEffect === 'pixel_drift' ? (
-              (() => {
-                const colorsMap: Record<string, string[]> = {
-                  monochrome: isDark ? ["#FFFFFF", "#E3E2E6"] : ["#1F1F1F", "#444746"],
-                  aurora: isDark ? ["#60A5FA", "#A78BFA", "#F472B6", "#FFFFFF"] : ["#3186FF", "#8B5CF6", "#EC4899", "#1F1F1F"],
-                  cyber: ["#00FFCC", "#FF007F", "#7F00FF", "#007FFF"],
-                  sunset: ["#FF5E62", "#FF9966", "#FFD166", "#EF476F"],
-                  emerald: ["#10B981", "#34D399", "#A7F3D0", "#059669"],
-                };
-                const resolvedColors = colorsMap[config.particleColorsPreset || 'monochrome'] || (isDark ? ["#FFFFFF", "#FFFFFF"] : ["#1f1f1f", "#1f1f1f"]);
-                return (
-                  <div className="relative flex-1 h-[40px] overflow-visible min-w-[220px] flex items-center">
-                    <ParticleText 
-                      text={config.statusText || "Synthesizing research..."} 
-                      colors={resolvedColors} 
-                      particleCount={config.particleCount ?? 70}
-                      particleSize={config.particleSize ?? 9} 
-                      mouseRadius={config.mouseRadius ?? 45}
-                      mouseForce={config.mouseForce ?? 6} 
-                      fontSize={config.particleFontSize ?? 20} 
-                      autoFit={config.particleAutoFit ?? false} 
-                      animateIn={config.particleAnimateIn ?? false}
-                      style={{ minWidth: 0, minHeight: 0, width: "100%", height: "100%" }} 
-                    />
-                  </div>
-                );
-              })()
-            ) : (
-              <span 
-                className={`relative z-10 text-[16px] font-medium leading-[24px] font-display overflow-visible ${showTextGlow ? 'whitespace-nowrap overflow-visible py-1 px-1 -my-1 -mx-1 inline-block' : 'truncate'} ${
-                  isDark ? 'text-[#ffffff]' : 'text-[#1f1f1f]'
-                }`}
-                style={{
-                  ...titleStyle,
-                  ...(showTextGlow && isDark ? {
-                    textShadow: `0 0 ${config.textGlowBlur ?? 16}px rgba(255,255,255, ${config.textGlowOpacity ?? 0.9}), 0 0 ${(config.textGlowBlur ?? 16) * 1.8}px ${glowPalette === 'violet_aurora' ? 'rgba(236,72,153,0.75)' : glowPalette === 'emerald_aurora' ? 'rgba(52,211,153,0.75)' : 'rgba(96,165,250,0.75)'}`,
-                    mixBlendMode: (config.textBlendMode as any) || 'plus-lighter'
-                  } : {})
-                }}
-              >
-                {config.statusText}
-              </span>
+            {showTitle && (
+              config.statusTextEffect === 'pixel_drift' ? (
+                (() => {
+                  const colorsMap: Record<string, string[]> = {
+                    monochrome: isDark ? ["#FFFFFF", "#E3E2E6"] : ["#1F1F1F", "#444746"],
+                    aurora: isDark ? ["#60A5FA", "#A78BFA", "#F472B6", "#FFFFFF"] : ["#3186FF", "#8B5CF6", "#EC4899", "#1F1F1F"],
+                    cyber: ["#00FFCC", "#FF007F", "#7F00FF", "#007FFF"],
+                    sunset: ["#FF5E62", "#FF9966", "#FFD166", "#EF476F"],
+                    emerald: ["#10B981", "#34D399", "#A7F3D0", "#059669"],
+                  };
+                  const resolvedColors = colorsMap[config.particleColorsPreset || 'monochrome'] || (isDark ? ["#FFFFFF", "#FFFFFF"] : ["#1f1f1f", "#1f1f1f"]);
+                  return (
+                    <div className="relative flex-1 h-[40px] overflow-visible min-w-[220px] flex items-center">
+                      <ParticleText 
+                        text={config.statusText || "Synthesizing research..."} 
+                        colors={resolvedColors} 
+                        particleCount={config.particleCount ?? 70}
+                        particleSize={config.particleSize ?? 9} 
+                        mouseRadius={config.mouseRadius ?? 45}
+                        mouseForce={config.mouseForce ?? 6} 
+                        fontSize={config.particleFontSize ?? 20} 
+                        autoFit={config.particleAutoFit ?? false} 
+                        animateIn={config.particleAnimateIn ?? false}
+                        style={{ minWidth: 0, minHeight: 0, width: "100%", height: "100%" }} 
+                      />
+                    </div>
+                  );
+                })()
+              ) : (
+                <span 
+                  className={`relative z-10 text-[14px] font-medium leading-[20px] font-display overflow-visible ${showTextGlow ? 'whitespace-nowrap overflow-visible py-1 px-1 -my-1 -mx-1 inline-block' : 'truncate'} ${
+                    isDark ? 'text-[#ffffff]' : 'text-[#1f1f1f]'
+                  }`}
+                  style={{
+                    ...titleStyle,
+                    ...(showTextGlow && isDark ? {
+                      textShadow: `0 0 ${config.textGlowBlur ?? 16}px rgba(255,255,255, ${config.textGlowOpacity ?? 0.9}), 0 0 ${(config.textGlowBlur ?? 16) * 1.8}px ${glowPalette === 'violet_aurora' ? 'rgba(236,72,153,0.75)' : glowPalette === 'emerald_aurora' ? 'rgba(52,211,153,0.75)' : 'rgba(96,165,250,0.75)'}`,
+                      mixBlendMode: (config.textBlendMode as any) || 'plus-lighter'
+                    } : {})
+                  }}
+                >
+                  {config.statusText}
+                </span>
+              )
             )}
 
-            {/* Product Badges (if enabled) */}
+            {/* Product Badges (if enabled) with reserved min-width container to prevent title text shifting */}
             {showBadges && (
-              <div className="flex-shrink-0 flex items-center ml-3">
+              <div className="flex-shrink-0 flex items-center ml-3 min-w-[72px]">
                 {(() => {
                   const isAnimated = config.animateBadges && isInProgress;
                   const activeTop3 = animatedActiveIcons.slice(0, 3);
@@ -1069,22 +1156,58 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
           </div>
         </div>
 
-        {/* Right Side: Expand/Collapse Arrow Button */}
-        <button
-          onClick={onToggleExpand}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
-            isDark 
-              ? 'hover:bg-[#2b2d31] text-[#c4c7c5]' 
-              : 'hover:bg-[#f0f4f9] text-[#444746]'
-          }`}
-          title={config.isExpanded ? "Collapse Details" : "Expand Details"}
-        >
-          <span className={`material-symbols-outlined text-[20px] transition-transform duration-300 ${
-            config.isExpanded ? 'rotate-180' : 'rotate-0'
-          }`}>
-            keyboard_arrow_down
-          </span>
-        </button>
+        {/* Right Side Header Controls Container: Timer, Stop Icon, Chevron */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto z-10">
+          {/* Simple Timer Display matching title typography style (no icon, no containment) */}
+          {showTimer && (
+            <span 
+              className={`relative z-10 text-[14px] font-medium leading-[20px] font-display shrink-0 opacity-70 ${
+                isDark ? 'text-[#ffffff]' : 'text-[#1f1f1f]'
+              }`}
+              style={titleStyle}
+            >
+              {formatTimer(elapsedSeconds)}
+            </span>
+          )}
+
+          {/* Stop / Play Action Icon */}
+          {showStopIcon && (
+            <button
+              onClick={() => {
+                // If callback or parent handler is provided or state update
+              }}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                isDark 
+                  ? 'hover:bg-[#2b2d31] text-[#c4c7c5]' 
+                  : 'hover:bg-[#f0f4f9] text-[#444746]'
+              }`}
+              title={isInProgress ? "Stop Loading" : "Start Loading"}
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {isInProgress ? 'stop' : 'play_arrow'}
+              </span>
+            </button>
+          )}
+
+          {/* Expand/Collapse Chevron Button */}
+          {showChevron && (
+            <button
+              onClick={onToggleExpand}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                isDark 
+                  ? 'hover:bg-[#2b2d31] text-[#c4c7c5]' 
+                  : 'hover:bg-[#f0f4f9] text-[#444746]'
+              }`}
+              title={config.isExpanded ? "Collapse Details" : "Expand Details"}
+            >
+              <span className={`material-symbols-outlined text-[20px] transition-transform duration-300 ${
+                config.isExpanded ? 'rotate-180' : 'rotate-0'
+              }`}>
+                keyboard_arrow_down
+              </span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Expanded Status Detail Box */}
@@ -1112,16 +1235,19 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
           }`;
         }
 
+        const detailGap = config.detailListGap ?? 12;
+        const listGap = config.listDensity ?? 8;
+
         return (
           <div 
             className={`grid transition-all duration-300 ease-in-out overflow-visible ${
-              config.isExpanded ? `grid-rows-[1fr] opacity-100 ${ruleVariant === 'squiggly' || ruleVariant === 'none' ? 'pt-1' : 'pt-3'} ${borderClasses}` : 'grid-rows-[0fr] opacity-0 mt-0 pt-0 border-t-0'
+              config.isExpanded ? `grid-rows-[1fr] opacity-100 pt-0 ${borderClasses}` : 'grid-rows-[0fr] opacity-0 pt-0 border-t-0'
             }`}
-            style={{ marginTop: config.isExpanded ? `${config.detailListGap ?? 12}px` : '0px' }}
+            style={{ marginTop: config.isExpanded ? `${detailGap}px` : '0px' }}
           >
-            <div className={`${(config.expandedStyle === 'title_list_aurora' || config.expandedStyle === 'title_list_determinate_aurora' || config.expandedStyle === 'title_list_neural' || config.expandedStyle === 'title_list_determinate_neural' || config.expandedStyle === 'title_list_neural_particles' || config.expandedStyle === 'title_list_determinate_neural_particles' || isCarousel) ? 'overflow-visible' : 'overflow-hidden'} space-y-3`}>
+            <div className={`${(config.expandedStyle === 'title_list_aurora' || config.expandedStyle === 'title_list_determinate_aurora' || config.expandedStyle === 'title_list_neural' || config.expandedStyle === 'title_list_determinate_neural' || config.expandedStyle === 'title_list_neural_particles' || config.expandedStyle === 'title_list_determinate_neural_particles' || isCarousel) ? 'overflow-visible' : 'overflow-hidden'} space-y-0 pt-0`}>
               {config.isExpanded && ruleVariant === 'squiggly' && (
-                <div className="w-full h-3 mb-2.5 pt-0.5 flex items-center overflow-visible">
+                <div className="w-full h-3 mb-2.5 pt-0 flex items-center overflow-visible">
                   <svg className={`w-full h-3 ${
                     isLuminous 
                       ? 'text-[var(--on-surface)]' 
@@ -1172,25 +1298,28 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               }
 
               return (
-                <div className={`flex flex-col gap-2 w-full pt-1 pb-1 ${leftPaddingClass}`}>
+                <div className={`flex flex-col w-full pt-0 pb-0 ${leftPaddingClass}`} style={{ gap: `${listGap}px` }}>
                   {visibleItems.map((item, idx) => {
                     const isVisible = !isInProgress || idx <= activeStepIndex;
                     if (!isVisible) return null;
 
                     const isCurrentlyActive = isInProgress && idx === activeStepIndex;
+                    const isCompleted = isInProgress && idx < activeStepIndex;
 
                     return (
                       <div
                         key={idx}
                         onClick={() => setActiveStepIndex(idx)}
-                        className={`flex items-center transition-all duration-500 ease-out cursor-pointer select-none py-1 ${
+                        className={`flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none py-0.5 animate-soft-item-reveal ${
                           isCurrentlyActive
                             ? (isDark ? 'text-[#e3e2e6]' : 'text-[#1f1f1f]')
-                            : (isDark ? 'text-[#a8abb0] opacity-85 hover:opacity-100' : 'text-[#444746] opacity-85 hover:opacity-100')
+                            : isCompleted
+                              ? (isDark ? 'text-[#8e918f]' : 'text-[#747775]')
+                              : (isDark ? 'text-[#a8abb0] opacity-85 hover:opacity-100' : 'text-[#444746] opacity-85 hover:opacity-100')
                         }`}
                       >
                         <h4
-                          className="text-[13px] leading-[20px] font-display transition-colors"
+                          className="text-[14px] leading-[20px] font-display transition-colors"
                           style={titleStyle}
                         >
                           {item.title}
@@ -1213,9 +1342,10 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               }
 
               const revealedCount = Math.min(visibleItems.length, activeStepIndex + 1);
-              let containerHeight = 36;
-              if (revealedCount === 2) containerHeight = 68;
-              else if (revealedCount >= 3) containerHeight = 100;
+              const stepH = 28 + listGap;
+              let containerHeight = stepH;
+              if (revealedCount === 2) containerHeight = stepH * 2;
+              else if (revealedCount >= 3) containerHeight = stepH * 3;
 
               return (
                 <div className={`relative w-full overflow-visible transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${leftPaddingClass}`} style={{ height: `${containerHeight}px` }}>
@@ -1224,21 +1354,22 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                     if (!isVisible) return null;
 
                     const isCurrentlyActive = isInProgress && idx === activeStepIndex;
+                    const isCompleted = isInProgress && idx < activeStepIndex;
                     const distance = isInProgress ? (activeStepIndex - idx) : 0;
 
                     let yOffset = 0;
                     let scaleVal = 1;
                     let opacityVal = 1;
                     if (distance === 1) {
-                      yOffset = 36;
+                      yOffset = stepH;
                       scaleVal = 0.94;
                       opacityVal = 0.72;
                     } else if (distance === 2) {
-                      yOffset = 68;
+                      yOffset = stepH * 2;
                       scaleVal = 0.88;
                       opacityVal = 0.45;
                     } else if (distance >= 3) {
-                      yOffset = 96;
+                      yOffset = stepH * 2.8;
                       scaleVal = 0.82;
                       opacityVal = 0.2;
                     }
@@ -1247,7 +1378,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                       <div
                         key={idx}
                         onClick={() => setActiveStepIndex(idx)}
-                        className="absolute left-0 right-0 flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none origin-top-left"
+                        className={`absolute left-0 right-0 flex items-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none origin-top-left ${isCurrentlyActive ? 'animate-soft-item-reveal' : ''}`}
                         style={{
                           transform: `translate3d(0, ${yOffset}px, 0) scale(${scaleVal})`,
                           opacity: opacityVal,
@@ -1258,7 +1389,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                           {/* Aurora Glow right inside 40px padded wrapper so zero top/left/bottom blur clipping occurs */}
                           {isCurrentlyActive && (
                             <div className="absolute inset-x-6 inset-y-6 rounded-full pointer-events-none overflow-visible z-0">
-                              {(config.expandedStyle === 'title_list_aurora' || glowPos) && (
+                              {showAuroraOnExplanation && (
                                 <AuroraGlowBehavior 
                                   glowPos={glowPos || 'border_halo'}
                                   auroraBg={auroraBg}
@@ -1267,7 +1398,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                                   glowOpacity={glowOpacity}
                                 />
                               )}
-                              {(config.auroraParticlesOnDetailLines || config.expandedStyle === 'title_list_neural' || config.expandedStyle === 'title_list_neural_particles' || config.preset === 'labs_neural_aurora_particles') && (
+                              {showNeuralOnExplanation && (
                                 <AuroraParticleMesh 
                                   isDark={isDark} 
                                   density={config.auroraParticleDensity} 
@@ -1279,10 +1410,12 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                           )}
 
                           <h4
-                            className={`relative z-10 text-[13px] leading-[20px] font-display transition-colors ${
+                            className={`relative z-10 text-[14px] leading-[20px] font-display transition-colors ${
                               isCurrentlyActive
                                 ? (isDark ? 'text-[#e3e2e6] font-semibold' : 'text-[#1f1f1f] font-semibold')
-                                : (isDark ? 'text-[#a8abb0] hover:opacity-95' : 'text-[#444746] hover:opacity-95')
+                                : isCompleted
+                                  ? (isDark ? 'text-[#8e918f]' : 'text-[#747775]')
+                                  : (isDark ? 'text-[#a8abb0] hover:opacity-95' : 'text-[#444746] hover:opacity-95')
                             }`}
                             style={titleStyle}
                           >
@@ -1307,7 +1440,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               }
 
               return (
-                <div className={`flex flex-col gap-2.5 w-full pt-1 pb-1 ${leftPaddingClass}`}>
+                <div className={`flex flex-col w-full pt-1 pb-1 ${leftPaddingClass}`} style={{ gap: `${listGap}px` }}>
                   {visibleItems.map((item, idx) => {
                     const isCompleted = isInProgress && idx < activeStepIndex;
                     const isCurrentlyActive = isInProgress && idx === activeStepIndex;
@@ -1316,18 +1449,18 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                       <div
                         key={idx}
                         onClick={() => setActiveStepIndex(idx)}
-                        className={`flex items-center gap-2.5 transition-all duration-500 ease-out cursor-pointer select-none py-1 ${
+                        className={`flex items-center gap-2.5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none py-1 animate-soft-item-reveal ${
                           isCurrentlyActive
                             ? (isDark ? 'text-[#e3e2e6]' : 'text-[#1f1f1f]')
                             : isCompleted
-                              ? (isDark ? 'text-[#a8abb0] opacity-85 hover:opacity-100' : 'text-[#444746] opacity-85 hover:opacity-100')
+                              ? (isDark ? 'text-[#8e918f]' : 'text-[#747775]')
                               : (isDark ? 'text-[#6c7075] opacity-50 hover:opacity-75' : 'text-[#a0a4a8] opacity-55 hover:opacity-75')
                         }`}
                       >
                         {/* Status completion circle badge */}
                         <div className={`flex-shrink-0 w-5.5 h-5.5 rounded-full flex items-center justify-center transition-all duration-500 ${
                           isCompleted
-                            ? (isDark ? 'bg-[#e3e2e6] text-[#1e1f22] shadow-xs scale-100' : 'bg-[#1f1f1f] text-white shadow-xs scale-100')
+                            ? (isDark ? 'bg-[#8e918f]/20 border border-[#8e918f] text-[#8e918f] shadow-xs scale-100' : 'bg-[#747775]/15 border border-[#747775] text-[#747775] shadow-xs scale-100')
                             : isCurrentlyActive
                               ? (isDark ? 'bg-[#3b82f6] shadow-xs ring-2 ring-[#3b82f6]/40 scale-105' : 'bg-[#3186ff] shadow-xs ring-2 ring-[#3186ff]/35 scale-105')
                               : (isDark ? 'bg-[#2b2d31] border border-[#383a3f]' : 'bg-[#eaf0f5] border border-[#d0d4d8]')
@@ -1339,7 +1472,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
 
                         {/* Title text with persistent number */}
                         <h4
-                          className={`text-[13px] leading-[20px] font-display transition-colors flex items-center gap-1.5 ${
+                          className={`text-[14px] leading-[20px] font-display transition-colors flex items-center gap-1.5 ${
                             isCurrentlyActive ? 'font-semibold' : 'font-normal'
                           }`}
                           style={titleStyle}
@@ -1365,7 +1498,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               }
 
               return (
-                <div className={`flex flex-col gap-2.5 w-full pt-1 pb-1 ${leftPaddingClass}`}>
+                <div className={`flex flex-col w-full pt-1 pb-1 ${leftPaddingClass}`} style={{ gap: `${listGap}px` }}>
                   {visibleItems.map((item, idx) => {
                     const isCompleted = isInProgress && idx < activeStepIndex;
                     const isCurrentlyActive = isInProgress && idx === activeStepIndex;
@@ -1375,13 +1508,13 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                         key={idx}
                         onClick={() => setActiveStepIndex(idx)}
                         className={`relative flex items-center gap-2.5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none ${
-                          isCurrentlyActive ? '-my-7 -mx-7 py-7 px-7 overflow-visible animate-mask-swipe-reveal z-10' : 'py-1 z-0'
+                          isCurrentlyActive ? '-my-7 -mx-7 py-7 px-7 overflow-visible animate-mask-swipe-reveal animate-soft-item-reveal z-10' : 'py-1 z-0'
                         }`}
                       >
                         {/* Neural Aurora Glow background behind currently active step */}
                         {isCurrentlyActive && (
                           <div className="absolute inset-x-5 inset-y-5 rounded-full pointer-events-none overflow-visible z-0">
-                            {(config.expandedStyle === 'title_list_determinate_aurora' || glowPos) && (
+                            {showAuroraOnExplanation && (
                               <AuroraGlowBehavior 
                                 glowPos={glowPos || 'border_halo'}
                                 auroraBg={auroraBg}
@@ -1390,7 +1523,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                                 glowOpacity={glowOpacity}
                               />
                             )}
-                            {(config.auroraParticlesOnDetailLines || config.expandedStyle === 'title_list_determinate_neural' || config.expandedStyle === 'title_list_determinate_neural_particles' || config.preset === 'labs_neural_aurora_particles') && (
+                            {showNeuralOnExplanation && (
                               <AuroraParticleMesh 
                                 isDark={isDark} 
                                 density={config.auroraParticleDensity} 
@@ -1404,7 +1537,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                         {/* Status circle badge */}
                         <div className={`relative z-10 flex-shrink-0 w-5.5 h-5.5 rounded-full flex items-center justify-center transition-all duration-500 ${
                           isCompleted
-                            ? (isDark ? 'bg-[#e3e2e6] text-[#1e1f22] shadow-xs scale-100' : 'bg-[#1f1f1f] text-white shadow-xs scale-100')
+                            ? (isDark ? 'bg-[#8e918f]/20 border border-[#8e918f] text-[#8e918f] shadow-xs scale-100' : 'bg-[#747775]/15 border border-[#747775] text-[#747775] shadow-xs scale-100')
                             : isCurrentlyActive
                               ? (isDark ? 'bg-[#3b82f6] shadow-xs ring-2 ring-[#60a5fa] scale-105' : 'bg-[#3186ff] shadow-xs ring-2 ring-[#73a8f4] scale-105')
                               : (isDark ? 'bg-[#2b2d31] border border-[#383a3f]' : 'bg-[#eaf0f5] border border-[#d0d4d8]')
@@ -1416,11 +1549,11 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
 
                         {/* Title text with persistent number */}
                         <h4
-                          className={`relative z-10 text-[13px] leading-[20px] font-display transition-colors duration-500 flex items-center gap-1.5 ${
+                          className={`relative z-10 text-[14px] leading-[20px] font-display transition-colors duration-500 flex items-center gap-1.5 ${
                             isCurrentlyActive
                               ? (isDark ? 'text-[#e3e2e6] font-semibold' : 'text-[#1f1f1f] font-semibold')
                               : isCompleted
-                                ? (isDark ? 'text-[#a8abb0] opacity-85 hover:opacity-100' : 'text-[#444746] opacity-85 hover:opacity-100')
+                                ? (isDark ? 'text-[#8e918f]' : 'text-[#747775]')
                                 : (isDark ? 'text-[#6c7075] opacity-50 hover:opacity-75' : 'text-[#a0a4a8] opacity-55 hover:opacity-75')
                           }`}
                           style={titleStyle}

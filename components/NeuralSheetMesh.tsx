@@ -141,10 +141,9 @@ export const NeuralSheetMesh: React.FC<NeuralSheetMeshProps> = ({
           const dx = rawX - activeCenterX;
           const dy = rawY - centerY;
 
-          const isWavePool = p.waveOffset !== undefined;
-          const radiusX = isWavePool ? centerX * 0.35 : cssW * 0.7;
-          const radiusY = isWavePool ? centerY * 0.7 : cssH * 0.8;
-          const exp = isWavePool ? 1.8 : 1.1;
+          const radiusX = cssW * 0.45;
+          const radiusY = cssH * 0.45;
+          const exp = 1.4;
 
           const normX = Math.abs(dx) / (radiusX || 1);
           const normY = Math.abs(dy) / (radiusY || 1);
@@ -257,8 +256,8 @@ export const NeuralSheetMesh: React.FC<NeuralSheetMeshProps> = ({
         height: "calc(100% + 96px)",
         overflow: "hidden",
         pointerEvents: "none",
-        WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 20%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0) 95%)",
-        maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 20%, rgba(0,0,0,0.4) 45%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0) 95%)",
+        WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 90%)",
+        maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0) 90%)",
         ...style
       }}
     >

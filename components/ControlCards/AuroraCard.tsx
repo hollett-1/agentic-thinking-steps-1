@@ -28,39 +28,60 @@ export const AuroraCard: React.FC<AuroraCardProps> = ({
         });
     };
 
-    const isAuroraActive = Boolean(
-        loader.expandedStyle === 'title_list_aurora' ||
-        loader.expandedStyle === 'title_list_determinate_aurora' ||
-        state.preset === 'labs_neural_list' ||
-        state.preset === 'labs_determinate_neural_list' ||
-        state.preset === 'labs_neural_pixel_drift' ||
-        state.preset === 'labs_neural_glow_layer' ||
-        loader.auroraGlowPosition === 'swipe_in_out' ||
-        loader.auroraGlowPosition === 'pulse_sweep' ||
-        loader.auroraGlowPosition === 'orbit_clockwise' ||
-        loader.auroraGlowOnTopTitle === true ||
-        loader.textGlowEnabled === true
-    );
+    // Determine target states with mutual exclusivity
+    let isLeadingActive = false;
+    let isTitleActive = false;
+    let isExplanationActive = false;
 
-    const handleToggleAurora = (checked: boolean) => {
-        if (checked) {
-            const newStyle = (loader.expandedStyle === 'title_list_determinate' || loader.expandedStyle === 'title_list_determinate_neural' || loader.expandedStyle === 'title_list_determinate_neural_particles') 
-                ? 'title_list_determinate_aurora' 
-                : 'title_list_aurora';
-            updateLoader({
-                expandedStyle: newStyle,
-                auroraGlowPosition: loader.auroraGlowPosition && loader.auroraGlowPosition !== 'border_halo' ? loader.auroraGlowPosition : 'border_halo',
-                auroraGlowOnTopTitle: state.preset === 'labs_neural_glow_layer' || !loader.isExpanded ? true : loader.auroraGlowOnTopTitle,
-                textGlowEnabled: state.preset === 'labs_neural_glow_layer' || !loader.isExpanded ? true : loader.textGlowEnabled
-            });
-        } else {
-            const newStyle = loader.expandedStyle === 'title_list_determinate_aurora' ? 'title_list_determinate' : 
+    if (loader.auroraOnLeadingLoader === true) {
+        isLeadingActive = true;
+    } else if (loader.auroraOnTitleRow === true) {
+        isTitleActive = true;
+    } else if (loader.auroraOnExplanationItems === true) {
+        isExplanationActive = true;
+    } else if (loader.auroraOnLeadingLoader !== false && loader.auroraOnTitleRow !== false && loader.auroraOnExplanationItems !== false) {
+        // Fallback for legacy preset states where explicit target booleans aren't saved yet
+        if (loader.auroraOnLeadingLoader) {
+            isLeadingActive = true;
+        } else if (loader.auroraOnTitleRow || loader.auroraGlowOnTopTitle) {
+            isTitleActive = true;
+        } else if (loader.auroraOnExplanationItems || loader.expandedStyle === 'title_list_aurora' || loader.expandedStyle === 'title_list_determinate_aurora') {
+            isExplanationActive = true;
+        }
+    }
+
+    const anyTargetActive = isLeadingActive || isTitleActive || isExplanationActive;
+
+    const handleTargetToggle = (target: 'leading' | 'title' | 'explanation', checked: boolean) => {
+        if (!checked) {
+            // Turning off the active target -> set all targets to false
+            const newStyle = loader.expandedStyle === 'title_list_determinate_aurora' ? 'title_list_determinate' :
                              (loader.expandedStyle === 'title_list_aurora' ? 'title_list' : loader.expandedStyle);
             updateLoader({
-                expandedStyle: newStyle,
-                auroraGlowPosition: undefined,
+                auroraOnLeadingLoader: false,
+                auroraOnTitleRow: false,
                 auroraGlowOnTopTitle: false,
-                textGlowEnabled: false
+                auroraOnExplanationItems: false,
+                expandedStyle: newStyle,
+            });
+        } else {
+            // Turning on selected target -> turn off all other targets
+            let newStyle = loader.expandedStyle;
+            if (target === 'explanation') {
+                newStyle = (loader.expandedStyle === 'title_list_determinate' || loader.expandedStyle === 'title_list_determinate_neural' || loader.expandedStyle === 'title_list_determinate_neural_particles') 
+                    ? 'title_list_determinate_aurora' 
+                    : 'title_list_aurora';
+            } else if (loader.expandedStyle === 'title_list_aurora' || loader.expandedStyle === 'title_list_determinate_aurora') {
+                newStyle = loader.expandedStyle === 'title_list_determinate_aurora' ? 'title_list_determinate' : 'title_list';
+            }
+
+            updateLoader({
+                auroraOnLeadingLoader: target === 'leading',
+                auroraOnTitleRow: target === 'title',
+                auroraGlowOnTopTitle: target === 'title',
+                auroraOnExplanationItems: target === 'explanation',
+                expandedStyle: newStyle,
+                auroraGlowPosition: loader.auroraGlowPosition && loader.auroraGlowPosition !== 'border_halo' ? loader.auroraGlowPosition : 'border_halo',
             });
         }
     };
@@ -98,14 +119,28 @@ export const AuroraCard: React.FC<AuroraCardProps> = ({
             dropPosition={dropPosition}
         >
             <div className="flex flex-col gap-4">
-                <M3Switch
-                    label="Enable Aurora Gradient Effect"
-                    checked={isAuroraActive}
-                    onChange={handleToggleAurora}
-                />
+                <div className="flex flex-col gap-2">
+                    <M3Switch
+                        label="Leading Loader"
+                        checked={isLeadingActive}
+                        onChange={(checked) => handleTargetToggle('leading', checked)}
+                    />
 
-                {isAuroraActive && (
-                    <>
+                    <M3Switch
+                        label="Entire Title Row"
+                        checked={isTitleActive}
+                        onChange={(checked) => handleTargetToggle('title', checked)}
+                    />
+
+                    <M3Switch
+                        label="Explanation Items"
+                        checked={isExplanationActive}
+                        onChange={(checked) => handleTargetToggle('explanation', checked)}
+                    />
+                </div>
+
+                {anyTargetActive && (
+                    <div className="pt-3 border-t border-[var(--outline-variant)]/40 flex flex-col gap-4">
                         <M3Select
                             label="Glow Position & Behavior"
                             value={loader.auroraGlowPosition ?? 'border_halo'}
@@ -204,7 +239,7 @@ export const AuroraCard: React.FC<AuroraCardProps> = ({
                                 </>
                             )}
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
         </M3CollapsibleCard>

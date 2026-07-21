@@ -29,9 +29,6 @@ const ALL_CARD_KEYS = [
     'design_typography',
     'aurora',
     'neural',
-    'status_detail',
-    'product_badges',
-    'stepper',
     'pixel_drift',
     'design_grid',
 ] as const;

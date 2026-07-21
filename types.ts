@@ -221,6 +221,7 @@ export interface LoaderConfig {
   detailItems?: DetailItem[];
   detailItemCount?: number;
   detailListGap?: number;
+  listDensity?: number;
   showBadges: boolean;
   animateBadges?: boolean;
   badgeCount: BadgeCount;
@@ -261,6 +262,17 @@ export interface LoaderConfig {
   auroraWaveOffset?: number;
   auroraWaveAutoPlay?: boolean;
   auroraWaveSpeed?: number;
+  showLeadingLoader?: boolean;
+  showTitle?: boolean;
+  showTimer?: boolean;
+  showStopIcon?: boolean;
+  showChevron?: boolean;
+  auroraOnLeadingLoader?: boolean;
+  auroraOnTitleRow?: boolean;
+  auroraOnExplanationItems?: boolean;
+  neuralOnLeadingLoader?: boolean;
+  neuralOnTitleRow?: boolean;
+  neuralOnExplanationItems?: boolean;
 }
 
 export interface AppState {

@@ -28,36 +28,62 @@ export const NeuralCard: React.FC<NeuralCardProps> = ({
         });
     };
 
-    const isNeuralActive = Boolean(
-        loader.expandedStyle === 'title_list_neural' ||
-        loader.expandedStyle === 'title_list_determinate_neural' ||
-        loader.expandedStyle === 'title_list_neural_particles' ||
-        loader.expandedStyle === 'title_list_determinate_neural_particles' ||
-        state.preset === 'labs_neural_aurora_particles' ||
-        state.preset === 'labs_neural_glow_layer' ||
-        state.preset === 'labs_neural_mesh_sheet' ||
-        state.preset === 'labs_aurora_neural_wave_pool' ||
-        loader.auroraParticlesOnDetailLines === true ||
-        loader.auroraParticlesOnTopTitle === true
-    );
+    // Determine target states with mutual exclusivity
+    let isLeadingActive = false;
+    let isTitleActive = false;
+    let isExplanationActive = false;
 
+    if (loader.neuralOnLeadingLoader === true) {
+        isLeadingActive = true;
+    } else if (loader.neuralOnTitleRow === true) {
+        isTitleActive = true;
+    } else if (loader.neuralOnExplanationItems === true) {
+        isExplanationActive = true;
+    } else if (loader.neuralOnLeadingLoader !== false && loader.neuralOnTitleRow !== false && loader.neuralOnExplanationItems !== false) {
+        // Fallback for legacy preset states where explicit target booleans aren't saved yet
+        if (loader.auroraParticlesOnIcon && !loader.auroraParticlesOnTopTitle && !loader.auroraParticlesOnDetailLines) {
+            isLeadingActive = true;
+        } else if (loader.auroraParticlesOnTopTitle) {
+            isTitleActive = true;
+        } else if (loader.auroraParticlesOnDetailLines || loader.expandedStyle === 'title_list_neural' || loader.expandedStyle === 'title_list_determinate_neural' || loader.expandedStyle === 'title_list_neural_particles' || loader.expandedStyle === 'title_list_determinate_neural_particles') {
+            isExplanationActive = true;
+        }
+    }
+
+    const anyTargetActive = isLeadingActive || isTitleActive || isExplanationActive;
     const isSheetMesh = loader.neuralMeshStyle === 'sheet_mesh' || state.preset === 'labs_neural_mesh_sheet';
 
-    const handleToggleNeural = (checked: boolean) => {
-        if (checked) {
-            const newStyle = loader.expandedStyle === 'title_list_determinate' ? 'title_list_determinate_neural' : 'title_list_neural';
-            updateLoader({
-                expandedStyle: newStyle,
-                auroraParticlesOnDetailLines: true,
-                auroraParticlesOnTopTitle: state.preset === 'labs_neural_glow_layer' || state.preset === 'labs_neural_mesh_sheet' || state.preset === 'labs_aurora_neural_wave_pool' || !loader.isExpanded ? true : loader.auroraParticlesOnTopTitle
-            });
-        } else {
+    const handleTargetToggle = (target: 'leading' | 'title' | 'explanation', checked: boolean) => {
+        if (!checked) {
+            // Turning off the active target -> turn off all targets
             const newStyle = (loader.expandedStyle === 'title_list_neural' || loader.expandedStyle === 'title_list_neural_particles') ? 'title_list' :
                              (loader.expandedStyle === 'title_list_determinate_neural' || loader.expandedStyle === 'title_list_determinate_neural_particles') ? 'title_list_determinate' : loader.expandedStyle;
             updateLoader({
-                expandedStyle: newStyle,
+                neuralOnLeadingLoader: false,
+                auroraParticlesOnIcon: false,
+                neuralOnTitleRow: false,
+                auroraParticlesOnTopTitle: false,
+                neuralOnExplanationItems: false,
                 auroraParticlesOnDetailLines: false,
-                auroraParticlesOnTopTitle: false
+                expandedStyle: newStyle,
+            });
+        } else {
+            // Turning on selected target -> turn off all other targets
+            let newStyle = loader.expandedStyle;
+            if (target === 'explanation') {
+                newStyle = loader.expandedStyle === 'title_list_determinate' ? 'title_list_determinate_neural' : 'title_list_neural';
+            } else if (loader.expandedStyle === 'title_list_neural' || loader.expandedStyle === 'title_list_determinate_neural') {
+                newStyle = loader.expandedStyle === 'title_list_determinate_neural' ? 'title_list_determinate' : 'title_list';
+            }
+
+            updateLoader({
+                neuralOnLeadingLoader: target === 'leading',
+                auroraParticlesOnIcon: target === 'leading',
+                neuralOnTitleRow: target === 'title',
+                auroraParticlesOnTopTitle: target === 'title',
+                neuralOnExplanationItems: target === 'explanation',
+                auroraParticlesOnDetailLines: target === 'explanation',
+                expandedStyle: newStyle,
             });
         }
     };
@@ -85,14 +111,28 @@ export const NeuralCard: React.FC<NeuralCardProps> = ({
             dropPosition={dropPosition}
         >
             <div className="flex flex-col gap-4">
-                <M3Switch
-                    label="Enable Neural Particle Mesh"
-                    checked={isNeuralActive}
-                    onChange={handleToggleNeural}
-                />
+                <div className="flex flex-col gap-2">
+                    <M3Switch
+                        label="Leading Loader"
+                        checked={isLeadingActive}
+                        onChange={(checked) => handleTargetToggle('leading', checked)}
+                    />
 
-                {isNeuralActive && (
-                    <>
+                    <M3Switch
+                        label="Entire Title Row"
+                        checked={isTitleActive}
+                        onChange={(checked) => handleTargetToggle('title', checked)}
+                    />
+
+                    <M3Switch
+                        label="Explanation Items"
+                        checked={isExplanationActive}
+                        onChange={(checked) => handleTargetToggle('explanation', checked)}
+                    />
+                </div>
+
+                {anyTargetActive && (
+                    <div className="pt-3 border-t border-[var(--outline-variant)]/40 flex flex-col gap-4">
                         <M3Select
                             label="Neural Mesh Style"
                             value={isSheetMesh ? 'sheet_mesh' : 'particles'}
@@ -121,18 +161,6 @@ export const NeuralCard: React.FC<NeuralCardProps> = ({
                                 `${loader.auroraWaveOffset ?? 50}%`
                             }
                             onChange={(val) => updateLoader({ auroraWaveOffset: val })}
-                        />
-
-                        <M3Switch
-                            label="Particles on Detail Lines"
-                            checked={loader.auroraParticlesOnDetailLines ?? true}
-                            onChange={(checked) => updateLoader({ auroraParticlesOnDetailLines: checked })}
-                        />
-
-                        <M3Switch
-                            label="Particles around Icon"
-                            checked={loader.auroraParticlesOnIcon ?? true}
-                            onChange={(checked) => updateLoader({ auroraParticlesOnIcon: checked })}
                         />
 
                         <M3Slider
@@ -188,7 +216,7 @@ export const NeuralCard: React.FC<NeuralCardProps> = ({
                                 onChange={(val) => updateLoader({ auroraParticleSize: val })}
                             />
                         )}
-                    </>
+                    </div>
                 )}
             </div>
         </M3CollapsibleCard>
