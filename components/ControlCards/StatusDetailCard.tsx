@@ -124,12 +124,14 @@ export const StatusDetailCard: React.FC<StatusDetailCardProps> = ({
                                 { label: 'Determinate Aurora', value: 'title_list_determinate_aurora' },
                                 { label: 'Neural List', value: 'title_list_neural' },
                                 { label: 'Determinate Neural', value: 'title_list_determinate_neural' },
+                                { label: 'Product Orbit', value: 'product_orbit_suction' },
+                                { label: 'Product 2D Orbit', value: 'product_orbit_flat' },
                             ]}
                             value={loader.expandedStyle || ((loader.carouselMode) ? 'carousel_stack' : 'default')}
                             onChange={(val) => updateLoader({
                                 expandedStyle: val as any,
                                 carouselMode: val === 'carousel_stack',
-                                showStepper: (val === 'carousel_stack' || val === 'title_list' || val === 'title_list_aurora' || val === 'title_list_neural' || val === 'title_list_determinate' || val === 'title_list_determinate_aurora' || val === 'title_list_determinate_neural' || val === 'title_list_neural_particles' || val === 'title_list_determinate_neural_particles') ? false : loader.showStepper
+                                showStepper: (val === 'carousel_stack' || val === 'title_list' || val === 'title_list_aurora' || val === 'title_list_neural' || val === 'title_list_determinate' || val === 'title_list_determinate_aurora' || val === 'title_list_determinate_neural' || val === 'title_list_neural_particles' || val === 'title_list_determinate_neural_particles' || val === 'product_orbit_suction' || val === 'product_orbit_flat') ? false : loader.showStepper
                             })}
                         />
                     </div>

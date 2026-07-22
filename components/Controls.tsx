@@ -3,6 +3,7 @@ import { AppState } from '../types';
 import {
     Header,
     PresetsCard,
+    PresetSettingsCard,
     DesignGridCard,
     StepperCard,
     PresentationThemeCard,
@@ -25,6 +26,7 @@ export interface ControlsProps {
 
 const ALL_CARD_KEYS = [
     'presets',
+    'preset_settings',
     'presentation_theme',
     'design_typography',
     'aurora',
@@ -150,6 +152,8 @@ export const Controls: React.FC<ControlsProps> = ({
                     switch (key) {
                         case 'presets':
                             return <PresetsCard key={key} {...commonProps} isLabMode={true} />;
+                        case 'preset_settings':
+                            return <PresetSettingsCard key={key} {...commonProps} />;
                         case 'pixel_drift':
                             return <PixelDriftCard key={key} {...commonProps} />;
                         case 'design_grid':

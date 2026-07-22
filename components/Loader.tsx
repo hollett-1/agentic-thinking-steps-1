@@ -3,6 +3,7 @@ import { LoaderConfig, ProductIconType, ThemeMode, DetailItem } from '../types';
 import ParticleText from './ParticleText';
 import { AuroraParticleMesh } from './AuroraParticleMesh';
 import { NeuralSheetMesh } from './NeuralSheetMesh';
+import { ProductOrbitVortex } from './ProductOrbitVortex';
 
 interface LoaderProps {
   config: LoaderConfig;
@@ -247,7 +248,7 @@ const ProcessingEnergyShader: React.FC<ProcessingEnergyShaderProps> = (props) =>
 };
 
 // 2026 Aurora Google Workspace Product Icons (from /dist/product-icons)
-const ProductIcon: React.FC<{ type: ProductIconType }> = ({ type }) => {
+export const ProductIcon: React.FC<{ type: ProductIconType }> = ({ type }) => {
   switch (type) {
     case 'gmail':
       return (
@@ -1032,7 +1033,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
                 </div>
               )}
 
-              {(config.loaderIconType === 'dots' || config.loaderIconType === 'glowing_dots') && (
+              {(config.loaderIconType === 'dots' || config.loaderIconType === 'glowing_dots' || config.loaderIconType === 'thinking_dots') && (
                 <div className="relative flex-shrink-0 flex items-center justify-center min-w-[28px] h-8 px-1">
                   <div className="flex items-center gap-[4px]">
                     <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-[#e3e2e6]' : 'bg-[#1f1f1f]'} ${isInProgress ? 'animate-dot-bounce' : ''}`} style={{ animationDelay: '0s' }} />
@@ -1287,11 +1288,33 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               );
             }
 
+            if (config.expandedStyle === 'product_orbit_suction' || config.expandedStyle === 'product_orbit_flat' || config.preset === 'labs_product_orbit_suction' || config.preset === 'labs_product_orbit_flat') {
+              const isFlat = config.expandedStyle === 'product_orbit_flat' || config.preset === 'labs_product_orbit_flat';
+              return (
+                <div className="w-full pt-1 pb-1 overflow-visible">
+                  <ProductOrbitVortex
+                    isDark={isDark}
+                    icons={config.selectedProductIcons}
+                    isInProgress={isInProgress}
+                    starCount={config.orbitStarCount ?? (isFlat ? 0 : 35)}
+                    speedMultiplier={config.orbitSpeed ?? (isFlat ? 0.8 : 0.7)}
+                    hasContainment={config.orbitIconContainment !== false}
+                    spiralMotion={config.orbitSpiralParticles !== false}
+                    randomZSpace={config.orbitRandomZSpace ?? false}
+                    cameraPitch={config.orbitCameraPitch ?? (isFlat ? 0 : 15)}
+                    isFlat2D={isFlat}
+                    steppedMotion={config.orbitSteppedMotion ?? (isFlat ? true : false)}
+                    particleDiameter={config.orbitParticleDiameter ?? 3.5}
+                  />
+                </div>
+              );
+            }
+
             if (config.expandedStyle === 'title_list') {
               let leftPaddingClass = 'pl-0';
               if (!config.loaderIconType || config.loaderIconType === 'spark') {
                 leftPaddingClass = 'pl-[44px]';
-              } else if (config.loaderIconType === 'dots') {
+              } else if (config.loaderIconType === 'dots' || config.loaderIconType === 'thinking_dots') {
                 leftPaddingClass = 'pl-[40px]';
               } else if (config.loaderIconType === 'glowing_dots') {
                 leftPaddingClass = 'pl-[60px]';
@@ -1335,7 +1358,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               let leftPaddingClass = 'pl-0';
               if (!config.loaderIconType || config.loaderIconType === 'spark') {
                 leftPaddingClass = 'pl-[44px]';
-              } else if (config.loaderIconType === 'dots') {
+              } else if (config.loaderIconType === 'dots' || config.loaderIconType === 'thinking_dots') {
                 leftPaddingClass = 'pl-[40px]';
               } else if (config.loaderIconType === 'glowing_dots') {
                 leftPaddingClass = 'pl-[60px]';
@@ -1433,7 +1456,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               let leftPaddingClass = 'pl-0';
               if (!config.loaderIconType || config.loaderIconType === 'spark') {
                 leftPaddingClass = 'pl-[44px]';
-              } else if (config.loaderIconType === 'dots') {
+              } else if (config.loaderIconType === 'dots' || config.loaderIconType === 'thinking_dots') {
                 leftPaddingClass = 'pl-[40px]';
               } else if (config.loaderIconType === 'glowing_dots') {
                 leftPaddingClass = 'pl-[60px]';
@@ -1491,7 +1514,7 @@ export const Loader: React.FC<LoaderProps> = ({ config, mode, replayKey, onToggl
               let leftPaddingClass = 'pl-0';
               if (!config.loaderIconType || config.loaderIconType === 'spark') {
                 leftPaddingClass = 'pl-[44px]';
-              } else if (config.loaderIconType === 'dots') {
+              } else if (config.loaderIconType === 'dots' || config.loaderIconType === 'thinking_dots') {
                 leftPaddingClass = 'pl-[40px]';
               } else if (config.loaderIconType === 'glowing_dots') {
                 leftPaddingClass = 'pl-[60px]';

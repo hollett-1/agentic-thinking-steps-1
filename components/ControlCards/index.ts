@@ -1,6 +1,7 @@
 export * from './types';
 export * from './Header';
 export * from './PresetsCard';
+export * from './PresetSettingsCard';
 export * from './DesignGridCard';
 export * from './StepperCard';
 export * from './PresentationThemeCard';

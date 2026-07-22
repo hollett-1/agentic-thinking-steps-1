@@ -18,7 +18,7 @@ export type SparkState = 'default' | 'in_progress';
 export type LoaderVariant = 'default' | 'with_badges';
 export type BadgeCount = '1' | '2' | '3' | '4+';
 export type ProductIconType = 'gmail' | 'docs' | 'sheets' | 'drive' | 'chat' | 'calendar';
-export type LoaderIconType = 'spark' | 'dots' | 'none';
+export type LoaderIconType = 'spark' | 'dots' | 'glowing_dots' | 'thinking_dots' | 'none';
 export type PresentationMode = 'freeform' | 'android' | 'web';
 
 export interface DetailItem {
@@ -202,7 +202,7 @@ export interface LoaderConfig {
   statusText: string;
   statusTextEffect?: 'none' | 'pixel_drift';
   isExpanded: boolean;
-  expandedStyle?: 'default' | 'carousel_stack' | 'title_list' | 'title_list_aurora' | 'title_list_neural' | 'title_list_determinate' | 'title_list_determinate_aurora' | 'title_list_determinate_neural' | 'title_list_neural_particles' | 'title_list_determinate_neural_particles';
+  expandedStyle?: 'default' | 'carousel_stack' | 'title_list' | 'title_list_aurora' | 'title_list_neural' | 'title_list_determinate' | 'title_list_determinate_aurora' | 'title_list_determinate_neural' | 'title_list_neural_particles' | 'title_list_determinate_neural_particles' | 'product_orbit_suction' | 'product_orbit_flat';
   carouselMode?: boolean;
   showStepper?: boolean;
   stepperStyle?: 'pills' | 'symbols' | 'lines';
@@ -258,6 +258,14 @@ export interface LoaderConfig {
   sheetWaveSpeed?: number;
   sheetWaveAmplitude?: number;
   sheetWireframeOpacity?: number;
+  orbitStarCount?: number;
+  orbitSpeed?: number;
+  orbitIconContainment?: boolean;
+  orbitSpiralParticles?: boolean;
+  orbitRandomZSpace?: boolean;
+  orbitCameraPitch?: number;
+  orbitSteppedMotion?: boolean;
+  orbitParticleDiameter?: number;
   particleShape?: 'circle' | 'gemini_spark';
   auroraWaveOffset?: number;
   auroraWaveAutoPlay?: boolean;

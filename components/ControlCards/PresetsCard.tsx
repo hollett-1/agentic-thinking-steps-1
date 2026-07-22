@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppState } from '../../types';
-import { LOADER_PRESETS, LABS_DEFAULT_STATE, LABS_CAROUSEL_STATE, LABS_LIST_STATE, LABS_NEURAL_LIST_STATE, LABS_DETERMINATE_LIST_STATE, LABS_DETERMINATE_NEURAL_LIST_STATE, LABS_NEURAL_PIXEL_DRIFT_STATE, LABS_NEURAL_AURORA_PARTICLES_STATE, LABS_NEURAL_GLOW_LAYER_STATE, LABS_NEURAL_MESH_SHEET_STATE, LABS_AURORA_NEURAL_WAVE_POOL_STATE } from '../../presets';
+import { LOADER_PRESETS, LABS_DEFAULT_STATE, LABS_CAROUSEL_STATE, LABS_LIST_STATE, LABS_THINKING_DOTS_STATE, LABS_NEURAL_LIST_STATE, LABS_DETERMINATE_LIST_STATE, LABS_DETERMINATE_NEURAL_LIST_STATE, LABS_NEURAL_PIXEL_DRIFT_STATE, LABS_NEURAL_AURORA_PARTICLES_STATE, LABS_NEURAL_GLOW_LAYER_STATE, LABS_NEURAL_MESH_SHEET_STATE, LABS_AURORA_NEURAL_WAVE_POOL_STATE, LABS_PRODUCT_ORBIT_SUCTION_STATE, LABS_PRODUCT_ORBIT_FLAT_STATE } from '../../presets';
 import { M3CollapsibleCard, M3Select } from '../M3Components';
 import { BaseControlCardProps } from './types';
 
@@ -29,6 +29,8 @@ export const PresetsCard: React.FC<PresetsCardProps> = ({
             updateState(LABS_CAROUSEL_STATE);
         } else if (isLabMode && key === 'labs_title_list') {
             updateState(LABS_LIST_STATE);
+        } else if (isLabMode && key === 'labs_thinking_dots') {
+            updateState(LABS_THINKING_DOTS_STATE);
         } else if (isLabMode && key === 'labs_neural_list') {
             updateState(LABS_NEURAL_LIST_STATE);
         } else if (isLabMode && key === 'labs_determinate_list') {
@@ -53,6 +55,10 @@ export const PresetsCard: React.FC<PresetsCardProps> = ({
                     statusText: randomTitle
                 }
             });
+        } else if (isLabMode && key === 'labs_product_orbit_suction') {
+            updateState(LABS_PRODUCT_ORBIT_SUCTION_STATE);
+        } else if (isLabMode && key === 'labs_product_orbit_flat') {
+            updateState(LABS_PRODUCT_ORBIT_FLAT_STATE);
         } else if (!isLabMode && LOADER_PRESETS[key]) {
             const presetConfig = LOADER_PRESETS[key].config;
             const newLoader = {
@@ -78,6 +84,8 @@ export const PresetsCard: React.FC<PresetsCardProps> = ({
               { label: '7. Indeterminate (Neural + Glow Layer)', value: 'labs_neural_glow_layer' },
               { label: '8. Indeterminate (Neural Mesh Surface / Sheet)', value: 'labs_neural_mesh_sheet' },
               { label: '9. Indeterminate (Aurora & Neural Wave Pool Swipe)', value: 'labs_aurora_neural_wave_pool' },
+              { label: '10. Indeterminate (Product Icons Orbit & Suction)', value: 'labs_product_orbit_suction' },
+              { label: '11. Indeterminate (Product Icons 2D Flat Orbit)', value: 'labs_product_orbit_flat' },
               { label: 'Custom configuration', value: 'custom' }
           ]
         : [
@@ -88,7 +96,7 @@ export const PresetsCard: React.FC<PresetsCardProps> = ({
               { label: 'Custom configuration', value: 'custom' }
           ];
 
-    const currentValue = state.preset || (isLabMode ? 'labs_default' : 'default_spark');
+    const currentValue = state.preset || (isLabMode ? 'labs_title_list' : 'default_spark');
 
     return (
         <M3CollapsibleCard 

@@ -48,17 +48,16 @@ export const DesignTypographyCard: React.FC<DesignTypographyCardProps> = ({
                     onChange={(contained) => updateLoader({ hasContainment: contained })}
                 />
 
-                <div className="flex flex-col gap-2 pt-2">
-                    <label className="text-xs font-medium text-[var(--on-surface-variant)]">
-                        Leading Indicator
-                    </label>
-                    <M3SegmentedButton
+                <div className="pt-2">
+                    <M3Select
+                        label="Leading Indicator"
+                        value={loader.loaderIconType || 'spark'}
+                        onChange={(val) => updateLoader({ loaderIconType: val as any })}
                         options={[
                             { label: 'Spark', value: 'spark' },
                             { label: 'Dots', value: 'dots' },
+                            { label: 'Thinking Dots Processing Indicator', value: 'thinking_dots' },
                         ]}
-                        value={(loader.loaderIconType === 'glowing_dots' || !loader.loaderIconType) ? 'spark' : loader.loaderIconType}
-                        onChange={(val) => updateLoader({ loaderIconType: val as 'spark' | 'dots' })}
                     />
                 </div>
 

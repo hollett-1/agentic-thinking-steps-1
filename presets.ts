@@ -425,7 +425,7 @@ export const LABS_LIST_STATE: AppState = {
     sparkState: "in_progress",
     loaderVariant: "with_badges",
     statusText: "Synthesizing research...",
-    isExpanded: true,
+    isExpanded: false,
     expandedStyle: "title_list",
     carouselMode: false,
     statusDetailTitle: "Exploring user feedback trends",
@@ -469,6 +469,30 @@ export const LABS_LIST_STATE: AppState = {
     ruleVariant: "none",
     titleWidth: 95,
     titleWeight: 400
+  },
+  gridSelection: "stepper_hybrid"
+};
+
+export const LABS_THINKING_DOTS_STATE: AppState = {
+  mode: "light",
+  preset: "labs_thinking_dots",
+  gridGranularity: "3x3",
+  loader: {
+    hasContainment: false,
+    loaderIconType: "dots",
+    sparkState: "in_progress",
+    loaderVariant: "default",
+    statusText: "",
+    isExpanded: false,
+    expandedStyle: "title_list",
+    carouselMode: false,
+    showBadges: false,
+    animateBadges: false,
+    presentation: "freeform",
+    showStepper: false,
+    showChevron: true,
+    detailListGap: 12,
+    listDensity: 8
   },
   gridSelection: "stepper_hybrid"
 };
@@ -960,6 +984,103 @@ export const LABS_AURORA_NEURAL_WAVE_POOL_STATE: AppState = {
     ruleVariant: "none",
     titleWidth: 95,
     titleWeight: 400
+  },
+  gridSelection: "stepper_hybrid"
+};
+
+export const LABS_PRODUCT_ORBIT_SUCTION_STATE: AppState = {
+  mode: "dark",
+  preset: "labs_product_orbit_suction",
+  gridGranularity: "3x3",
+  loader: {
+    hasContainment: false,
+    loaderIconType: "dots",
+    sparkState: "in_progress",
+    loaderVariant: "default",
+    statusText: "Synthesizing research...",
+    isExpanded: true,
+    expandedStyle: "product_orbit_suction",
+    carouselMode: false,
+    showBadges: false,
+    animateBadges: true,
+    badgeCount: "4+",
+    selectedProductIcons: ["gmail", "docs", "sheets", "drive", "chat", "calendar"],
+    presentation: "freeform",
+    webUrl: "mail.google.com/mail/u/0/#inbox",
+    androidPosition: "bottom",
+    showStepper: false,
+    showChevron: true,
+    detailListGap: 12,
+    listDensity: 8,
+    ruleVariant: "none",
+    orbitStarCount: 35,
+    orbitSpeed: 0.7,
+    orbitIconContainment: false,
+    orbitSpiralParticles: false,
+    orbitRandomZSpace: true,
+    orbitCameraPitch: 15,
+    orbitParticleDiameter: 3.5,
+    auroraParticlesOnTopTitle: false,
+    auroraGlowOnTopTitle: false,
+    textGlowEnabled: false,
+    statusDetailTitle: "",
+    statusDetailBody: "",
+    detailItemCount: 4,
+    detailItems: [
+      { title: "Analyzing Gmail threads & messages", body: "" },
+      { title: "Extracting Docs and Drive summaries", body: "" },
+      { title: "Aggregating Sheets financial data", body: "" },
+      { title: "Syncing Calendar event schedules", body: "" }
+    ]
+  },
+  gridSelection: "stepper_hybrid"
+};
+
+export const LABS_PRODUCT_ORBIT_FLAT_STATE: AppState = {
+  mode: "dark",
+  preset: "labs_product_orbit_flat",
+  gridGranularity: "3x3",
+  loader: {
+    hasContainment: false,
+    loaderIconType: "dots",
+    sparkState: "in_progress",
+    loaderVariant: "default",
+    statusText: "Thinking...",
+    isExpanded: true,
+    expandedStyle: "product_orbit_flat",
+    carouselMode: false,
+    showBadges: false,
+    animateBadges: true,
+    badgeCount: "4+",
+    selectedProductIcons: ["gmail", "docs", "sheets", "drive", "chat", "calendar"],
+    presentation: "freeform",
+    webUrl: "mail.google.com/mail/u/0/#inbox",
+    androidPosition: "bottom",
+    showStepper: false,
+    showChevron: true,
+    detailListGap: 12,
+    listDensity: 8,
+    ruleVariant: "none",
+    orbitStarCount: 35,
+    orbitSpeed: 0.8,
+    orbitIconContainment: false,
+    orbitSpiralParticles: false,
+    orbitRandomZSpace: false,
+    orbitCameraPitch: 0,
+    orbitSteppedMotion: true,
+    orbitParticleDiameter: 3.5,
+    auroraParticlesOnTopTitle: false,
+    auroraGlowOnTopTitle: false,
+    textGlowEnabled: false,
+    statusDetailTitle: "",
+    statusDetailBody: "",
+    detailItemCount: 4,
+    detailItems: [
+      { title: "Analyzing Gmail threads & messages", body: "" },
+      { title: "Extracting Docs and Drive summaries", body: "" },
+      { title: "Aggregating Sheets financial data", body: "" },
+      { title: "Syncing Calendar event schedules", body: "" }
+    ]
   },
   gridSelection: "stepper_hybrid"
 };
